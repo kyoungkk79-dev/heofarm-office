@@ -581,7 +581,7 @@ function renderWork() {
   const bits = [];
   if (sm.purchase_pending !== null && sm.purchase_pending !== undefined) bits.push(`발주대기 ${sm.purchase_pending}건`);
   if (sm.shipping !== null && sm.shipping !== undefined) bits.push(`발송중 ${sm.shipping}건`);
-  if (!bits.length) bits.push("설정에서 주문 현황을 가져오거나 직접 입력해 두세요.");
+  if (!bits.length) bits.push(sm.source ? `${sm.source} 기준 · 허팜에서 가져오면 자동 갱신` : "설정에서 주문 현황을 가져오거나 직접 입력해 두세요.");
   document.getElementById("summaryMore").textContent = bits.join(" · ");
   document.getElementById("workSched").innerHTML = schedHtml();
   renderTodos();
