@@ -196,6 +196,8 @@
     font-size: 10px; font-weight: 600; color: var(--primary-2);
     background: var(--primary-weak); border-radius: 6px; padding: 1px 6px;
   }
+  .ack.wait { color: var(--amber); background: var(--amber-weak); }
+  .ack.done { color: var(--green); background: var(--green-weak); }
 
   .empty {
     margin: auto; text-align: center; color: var(--muted); font-size: 12.5px; line-height: 1.75; padding: 20px;
@@ -424,12 +426,13 @@
 
   <div class="strip">
     <svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.1"/></svg>
-    <span class="strip-tx">이 브라우저에만 저장됩니다</span>
+    <span class="strip-tx" id="stripTx">클라우드에 실시간 저장됩니다 · PC·휴대폰이 같은 내용을 봅니다</span>
     <button class="strip-btn" id="stripBtn" onclick="toggleStrip()">자세히</button>
   </div>
   <div class="strip-more" id="stripMore" hidden>
-    PC·휴대폰 어디서나 열 수 있지만, 기기마다 내용이 따로 저장됩니다. <b>내보내기/가져오기</b>로 옮겨 주세요.
-    주문함(PC 프로그램)과 같은 대화를 보려면 PC의 <b>비서실 → 메모 → 내보내기(JSON)</b> 파일을 가져오면 됩니다.
+    회의실에서 보낸 지시는 <b>클라우드(Firebase 실시간 DB)</b>에 저장되고, PC·휴대폰 어디서 열어도 같은 대화·할 일·메모가 보입니다.
+    사장님이 보낸 지시는 <b>허팜이(대장)가 5분 안에 확인</b>해 이 화면에 실제 답변을 남깁니다. 멘션이 없으면 대장에게 전달됩니다.
+    인터넷이 끊기면 이 기기에 저장해 두었다가 연결되면 자동으로 보냅니다.
   </div>
 
   <nav class="tabs" id="tabs">
@@ -534,9 +537,9 @@
           <h4>이 비서실에서 하는 일</h4>
         </div>
         <ul class="bullets">
-          <li>이 화면은 서버 없이 브라우저에만 저장됩니다 (외부로 보내지 않음).</li>
-          <li>이름을 불러도 <b>접수 확인만</b> 남습니다. 실제 발주·발송은 허팜이 주문함에서 진행합니다.</li>
-          <li>PC 주문함 비서실과 내용을 맞추려면 <b>내보내기/가져오기</b>를 쓰세요.</li>
+          <li>이 화면은 <b>클라우드(Firebase 실시간 DB)</b>에 저장됩니다 — PC·휴대폰이 같은 내용을 봅니다.</li>
+          <li>사장님 지시는 <b>허팜이(대장)</b>가 5분마다 확인하고 <b>실제 답변</b>을 이 화면에 답니다. <b>@부대장(경진2)</b>은 부대장 몫으로 전달 표시만 남습니다.</li>
+          <li>실제 발주·송장은 허팜이 주문한 프로그램에서 진행하고, 결과를 이 화면에 보고합니다.</li>
         </ul>
       </div>
     </section>
@@ -601,9 +604,9 @@
     </div>
 
     <div class="sheet-note">
-      <b>저장 방식</b> — 이 화면의 내용은 이 브라우저(localStorage)에만 저장되고 서버로 보내지 않습니다.
-      기기마다 따로 저장되니 <b>메모 → 내보내기(JSON)</b>로 파일을 받아 다른 기기에서 <b>가져오기</b> 하세요.
-      PC 주문함과 같은 대화를 보려면 PC의 <b>비서실 → 메모 → 내보내기(JSON)</b> 파일을 가져오면 됩니다.
+      <b>저장 방식</b> — 이 화면의 대화·할 일·메모는 <b>클라우드(Firebase 실시간 DB)</b>에 저장되고, 3초마다 새로 고칩니다.
+      이 브라우저에도 사본을 남겨 두어 인터넷이 끊겨도 읽고 쓸 수 있고, 연결되면 자동으로 다시 보냅니다.
+      <b>내보내기(JSON)</b>는 백업용입니다.
     </div>
 
     <div class="sheet-foot">
@@ -621,6 +624,13 @@
 <script>
 /* ============================ 데이터 ============================ */
 const KEY = "heofarm_office_v1";
+/* Firebase Realtime Database (무료 Spark · 싱가포르 리전)
+   보안 규칙: 루트·다른 경로는 차단, 아래 비공개 키 경로만 읽기/쓰기 허용. */
+const FB_BASE = "https://heofarm-office-default-rtdb.asia-southeast1.firebasedatabase.app";
+const OFFICE_KEY = "office-bgg0lj2dch7neh3a";
+const DB = FB_BASE + "/office/" + OFFICE_KEY;
+const POLL_MS = 3000;
+const OUTBOX_KEY = KEY + "_outbox";
 const ROOMS = [
   { name: "대회의실", icon: "users", members: 3, memo: "사장님·허팜이·경진2 모두" },
   { name: "지휘실", icon: "target", members: 2, memo: "사장님·허팜이 지시 하달" },
@@ -632,10 +642,6 @@ const PEOPLE = [
   { key: "gyeongjin2", name: "경진2", call: "경진2", role: "부대장 / 업무폰", desc: "스레드·쿠팡 파트너스·소싱 실행", mark: "2", tone: "helper" }
 ];
 const MENTIONS = ["@전체", "@허팜이(대장)", "@부대장(경진2)"];
-const AUTO_REPLY = {
-  "허팜이": "네, 사장님! 접수했습니다. 발주·송장·메일 쪽이면 바로 착수해서 결과로 보고드리겠습니다.",
-  "경진2": "네, 사장님! 접수했습니다. 스레드·파트너스·소싱 쪽이면 부대장이 바로 움직이겠습니다."
-};
 const SCHEDULES = [
   { time: "07:30", name: "고흥 집계", who: "허팜이", days: [0,1,2,3,4], desc: "고흥유럽샐러드 오늘 주문 수량 집계" },
   { time: "08:30", name: "테무·광명 발주", who: "허팜이", days: [0,1,2,3,4], desc: "테무 미발송 CSV → 광명 발주서 발송" },
@@ -675,6 +681,9 @@ function freshState() {
 }
 
 let S = loadState();
+let OUTBOX = loadOutbox();
+let SYNC = { state: "idle", error: "", flushing: false, lastAt: 0, sig: "" };
+const LOCAL_MARKS = {};
 
 function loadState() {
   try {
@@ -687,14 +696,191 @@ function loadState() {
     out.settings = Object.assign(base.settings, raw.settings || {});
     out.todos = Array.isArray(raw.todos) ? raw.todos : [];
     out.memos = Array.isArray(raw.memos) ? raw.memos : [];
+    /* 예전 화면의 가짜 '자동 접수확인' 답장은 버린다 */
+    Object.keys(out.rooms).forEach(r => {
+      out.rooms[r] = (out.rooms[r] || []).filter(m => m && !m.auto);
+    });
     return out;
   } catch (e) { return freshState(); }
+}
+
+function loadOutbox() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(OUTBOX_KEY) || "[]");
+    return Array.isArray(raw) ? raw : [];
+  } catch (e) { return []; }
+}
+function saveOutbox() {
+  try { localStorage.setItem(OUTBOX_KEY, JSON.stringify(OUTBOX.slice(-200))); } catch (e) {}
 }
 
 function save() {
   S.updatedAt = nowStr();
   try { localStorage.setItem(KEY, JSON.stringify(S)); }
   catch (e) { toast("저장 공간이 가득 찼습니다. 내보낸 뒤 정리해 주세요."); }
+}
+
+/* ============================ 클라우드 동기화 ============================ */
+function apiUrl(path) { return DB + path + ".json"; }
+
+function api(method, path, value) {
+  const opt = { method: method, cache: "no-store", headers: {} };
+  if (value !== undefined) {
+    opt.headers["Content-Type"] = "application/json";
+    opt.body = JSON.stringify(value);
+  }
+  return fetch(apiUrl(path), opt).then(res => {
+    if (!res.ok) { const err = new Error("HTTP " + res.status); err.status = res.status; throw err; }
+    return method === "DELETE" ? null : res.json();
+  });
+}
+
+function queue(method, path, value) {
+  OUTBOX.push({ method: method, path: path, value: value, at: Date.now() });
+  saveOutbox();
+  flushOutbox();
+}
+
+function flushOutbox() {
+  if (SYNC.flushing || !OUTBOX.length) return Promise.resolve();
+  SYNC.flushing = true;
+  const run = async () => {
+    while (OUTBOX.length) {
+      const item = OUTBOX[0];
+      try {
+        await api(item.method, item.path, item.value);
+      } catch (e) {
+        if (e.status >= 400 && e.status < 500 && e.status !== 429) {
+          OUTBOX.shift(); saveOutbox();            /* 규칙 거부 등 되돌릴 수 없는 요청은 버린다 */
+          toast("클라우드에 저장하지 못했습니다 (" + e.message + ")");
+          continue;
+        }
+        SYNC.state = "offline"; SYNC.error = String(e.message || e);
+        setSyncLabel();
+        break;
+      }
+      OUTBOX.shift(); saveOutbox();
+    }
+    SYNC.flushing = false;
+  };
+  return run();
+}
+
+function stripLocal(m) {
+  const o = {};
+  Object.keys(m).forEach(k => { if (k.charAt(0) !== "_") o[k] = m[k]; });
+  return o;
+}
+
+function setSyncLabel() {
+  const el = document.getElementById("modeLabel");
+  const dot = document.querySelector(".hd .dot");
+  if (el) {
+    el.textContent = SYNC.state === "online" ? "실시간 동기화"
+      : SYNC.state === "offline" ? "오프라인 · 저장 대기" : "연결 중…";
+  }
+  if (dot) dot.style.background = SYNC.state === "online" ? "var(--green)"
+    : SYNC.state === "offline" ? "var(--red)" : "var(--muted2)";
+  const strip = document.getElementById("stripTx");
+  if (strip) {
+    strip.textContent = SYNC.state === "online"
+      ? "클라우드에 실시간 저장됩니다 · PC·휴대폰이 같은 내용을 봅니다"
+      : SYNC.state === "offline" ? "오프라인 — 이 기기에 저장해 두고 연결되면 자동 전송합니다"
+      : "클라우드에 연결하는 중…";
+  }
+}
+
+function applyRemote(data) {
+  const d = (data && typeof data === "object") ? data : {};
+  const rawMsgs = (d.messages && typeof d.messages === "object") ? d.messages : {};
+  const msgs = [];
+  Object.keys(rawMsgs).forEach(k => {
+    const m = rawMsgs[k];
+    if (m && typeof m === "object" && m.id && typeof m.text === "string") msgs.push(m);
+  });
+  const seen = {};
+  msgs.forEach(m => { seen[m.id] = true; });
+  Object.keys(S.rooms).forEach(r => {
+    (S.rooms[r] || []).forEach(m => { if (m._local && !seen[m.id]) msgs.push(m); });
+  });
+  msgs.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+
+  const rooms = freshState().rooms;
+  ROOMS.forEach(r => { rooms[r.name] = []; });
+  msgs.forEach(m => {
+    const r = rooms[m.room] ? m.room : (m.room || "지휘실");
+    if (!rooms[r]) rooms[r] = [];
+    rooms[r].push(m);
+  });
+  Object.keys(rooms).forEach(r => { rooms[r] = rooms[r].slice(-400); });
+
+  const todos = Object.keys(d.todos || {}).map(k => d.todos[k]).filter(t => t && t.id && t.text);
+  todos.sort((a, b) => String(a.at || "").localeCompare(String(b.at || "")));
+  const memos = Object.keys(d.memos || {}).map(k => d.memos[k]).filter(m => m && m.id && m.text);
+  memos.sort((a, b) => String(b.at || "").localeCompare(String(a.at || "")));
+  const summary = (d.summary && typeof d.summary === "object") ? Object.assign(freshState().summary, d.summary) : S.summary;
+
+  const sig = JSON.stringify([rooms, todos, memos, summary]);
+  if (sig === SYNC.sig) return;         /* 바뀐 게 없으면 다시 그리지 않는다 (깜빡임·스크롤 튐 방지) */
+  SYNC.sig = sig;
+
+  /* 새로 도착한 답변 알림 */
+  Object.keys(rooms).forEach(r => {
+    rooms[r].forEach(m => {
+      if (m.author === "사장님" || m._local) return;
+      const before = (S.rooms[r] || []).some(x => x.id === m.id);
+      if (!before && m.ts && Date.now() - m.ts < 5 * 60 * 1000 && LOCAL_MARKS.ready) {
+        toast(m.author + " 답변 도착");
+      }
+    });
+  });
+  LOCAL_MARKS.ready = true;
+
+  S.rooms = rooms;
+  S.todos = todos;
+  S.memos = memos;
+  S.summary = summary;
+  save();
+  renderAll();
+}
+
+async function pull() {
+  try {
+    const data = await api("GET", "");
+    SYNC.state = "online"; SYNC.error = ""; SYNC.lastAt = Date.now();
+    if (data === null) {
+      seedCloud();
+    } else {
+      applyRemote(data);
+    }
+  } catch (e) {
+    SYNC.state = "offline"; SYNC.error = String(e.message || e);
+  }
+  setSyncLabel();
+  flushOutbox();
+}
+
+/* 처음 열었을 때 클라우드가 비어 있으면 이 기기의 옛 기록을 올려 준다 */
+function seedCloud() {
+  let n = 0;
+  Object.keys(S.rooms).forEach(r => {
+    (S.rooms[r] || []).forEach(m => {
+      if (!m || !m.id || !m.text) return;
+      queue("PUT", "/messages/" + m.id, stripLocal(m)); n++;
+    });
+  });
+  (S.todos || []).forEach(t => { if (t && t.id) { queue("PUT", "/todos/" + t.id, t); n++; } });
+  (S.memos || []).forEach(m => { if (m && m.id) { queue("PUT", "/memos/" + m.id, m); n++; } });
+  if (S.summary && (S.summary.paid !== null || S.summary.at)) queue("PUT", "/summary", S.summary);
+  if (n) toast("이 기기의 기록 " + n + "건을 클라우드에 올렸습니다");
+}
+
+function startSync() {
+  setSyncLabel();
+  pull();
+  setInterval(() => { if (!document.hidden) pull(); }, POLL_MS);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) pull(); });
+  window.addEventListener("online", () => { SYNC.state = "idle"; pull(); });
 }
 
 /* ============================ 도우미 ============================ */
@@ -729,6 +915,12 @@ function parseMentions(text) {
   if (t.includes("@허팜이")) out.push("허팜이");
   if (t.includes("@경진2") || t.includes("@부대장") || t.includes("@gyeongjin24")) out.push("경진2");
   return [...new Set(out)];
+}
+/* 멘션이 없으면 대장(허팜이)에게 기본 전달 — 지시는 반드시 누군가에게 간다 */
+function pendingFor(text, mentions) {
+  const out = (mentions || parseMentions(text)).slice();
+  if (!out.length) out.push("허팜이");
+  return out;
 }
 function toggleStrip() {
   const more = document.getElementById("stripMore");
@@ -810,6 +1002,16 @@ function renderAll() {
   if (SEC === "memo") renderMemos();
 }
 
+/* 사장님 메시지 아래에 붙는 실제 처리 상태 (가짜 답장 대신) */
+function statusChip(m) {
+  if (m._local) return '<span class="ack wait">' + ic("clock", 10) + "전송 중…</span>";
+  const who = (m.pending_for && m.pending_for.length) ? m.pending_for.join("·") : "허팜이";
+  if (m.status === "answered") return '<span class="ack done">' + ic("check", 10) + "답변 완료</span>";
+  if (m.status === "relayed") return '<span class="ack">' + ic("check", 10) + "부대장 확인 대기</span>";
+  if (m.status === "working") return '<span class="ack wait">' + ic("clock", 10) + who + " 처리 중</span>";
+  return '<span class="ack wait">' + ic("clock", 10) + "전송됨 · " + esc(who) + " 확인 중</span>";
+}
+
 function renderRoom() {
   document.getElementById("rooms").innerHTML = ROOMS.map(r =>
     '<button class="room ' + (r.name === S.activeRoom ? "active" : "") + '" onclick="setRoom(\'' + esc(r.name) + '\')">'
@@ -825,17 +1027,17 @@ function renderRoom() {
   const box = document.getElementById("msgs");
   const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 90;
   if (!msgs.length) {
-    box.innerHTML = '<div class="empty">' + ic("chat", 26) + "아직 지시가 없습니다.<br>아래에 적고 <b>@허팜이(대장)</b>을 누른 뒤 보내면 접수 확인이 붙습니다.</div>";
+    box.innerHTML = '<div class="empty">' + ic("chat", 26) + "아직 지시가 없습니다.<br>아래에 적고 <b>@허팜이(대장)</b>을 누른 뒤 보내면 대장이 확인해 답변합니다.</div>";
   } else {
     box.innerHTML = msgs.map(m => {
       const p = personByCall(m.author);
       const me = m.author === "사장님";
       const time = (m.at || "").slice(11, 16);
-      const auto = m.auto ? '<span class="ack">' + ic("check", 10) + "자동 접수확인</span>" : "";
+      const chip = me ? statusChip(m) : "";
       const role = (!me && p.role) ? " · " + esc(p.role) : "";
       return '<div class="msg ' + (me ? "me" : "") + '">'
         + avatarHtml(p)
-        + '<div class="body"><div class="meta"><b>' + esc(m.author) + "</b>" + role + " · " + time + auto + "</div>"
+        + '<div class="body"><div class="meta"><b>' + esc(m.author) + "</b>" + role + " · " + time + chip + "</div>"
         + '<div class="bubble">' + esc(m.text) + "</div></div></div>";
     }).join("");
   }
@@ -869,22 +1071,25 @@ function send() {
   if (text.length > 2000) { toast("메시지는 2000자까지 쓸 수 있습니다."); return; }
   const at = nowStr();
   const room = S.activeRoom;
-  const msg = { id: uid("msg"), author: "사장님", text, at, auto: false, mentions: parseMentions(text) };
+  const mentions = parseMentions(text);
+  const pending = pendingFor(text, mentions);
+  const msg = {
+    id: uid("msg"), room: room, author: "사장님", text: text, at: at, ts: Date.now(),
+    mentions: mentions, pending_for: pending, status: "sent", _local: true
+  };
   S.rooms[room] = (S.rooms[room] || []).concat([msg]).slice(-400);
-  const replies = msg.mentions.map(t => ({
-    id: uid("msg"), author: t, text: AUTO_REPLY[t] || "접수했습니다.", at, auto: true, replyTo: msg.id, mentions: []
-  }));
-  S.rooms[room] = S.rooms[room].concat(replies).slice(-400);
   save();
   ta.value = "";
   autoGrow(ta);
   renderRoom();
-  if (replies.length) toast("접수 확인: " + replies.map(r => r.author).join(", "));
+  queue("PUT", "/messages/" + msg.id, stripLocal(msg));
+  toast("전송됨 · " + pending.join("·") + " 확인 중");
   ta.focus();
 }
 
 function clearRoom() {
-  if (!confirm("'" + S.activeRoom + "' 대화를 모두 지울까요? 되돌릴 수 없습니다.")) return;
+  if (!confirm("'" + S.activeRoom + "' 대화를 모두 지울까요? (클라우드에서도 지워집니다 · 되돌릴 수 없습니다)")) return;
+  (S.rooms[S.activeRoom] || []).forEach(m => { if (m && m.id) queue("DELETE", "/messages/" + m.id); });
   S.rooms[S.activeRoom] = [];
   save();
   renderRoom();
@@ -932,22 +1137,28 @@ function addTodo() {
   const input = document.getElementById("todoInput");
   const text = (input.value || "").trim();
   if (!text) { input.focus(); return; }
-  S.todos.push({ id: uid("td"), text: text.slice(0, 300), done: false, at: nowStr() });
+  const t = { id: uid("td"), text: text.slice(0, 300), done: false, at: nowStr() };
+  S.todos.push(t);
   input.value = "";
   save();
   renderTodos();
+  queue("PUT", "/todos/" + t.id, t);
 }
 function editTodo(id) { editingTodo = id; renderTodos(); }
 function toggleTodo(id, checked) {
   const t = S.todos.find(x => x.id === id);
-  if (t) { t.done = !!checked; t.doneAt = checked ? nowStr() : ""; save(); renderTodos(); }
+  if (t) {
+    t.done = !!checked; t.doneAt = checked ? nowStr() : "";
+    save(); renderTodos();
+    queue("PATCH", "/todos/" + id, { done: t.done, doneAt: t.doneAt });
+  }
 }
 function saveTodoText(id) {
   const el = document.getElementById("todoEdit");
   const text = el ? el.value.trim() : "";
   if (!text) { toast("내용을 적어 주세요."); return; }
   const t = S.todos.find(x => x.id === id);
-  if (t) { t.text = text.slice(0, 300); save(); }
+  if (t) { t.text = text.slice(0, 300); save(); queue("PATCH", "/todos/" + id, { text: t.text }); }
   editingTodo = "";
   renderTodos();
 }
@@ -956,10 +1167,12 @@ function deleteTodo(id) {
   S.todos = S.todos.filter(t => t.id !== id);
   save();
   renderTodos();
+  queue("DELETE", "/todos/" + id);
 }
 function clearDone() {
   if (!confirm("완료한 할 일을 모두 지울까요?")) return;
   const before = S.todos.length;
+  S.todos.filter(t => t.done).forEach(t => queue("DELETE", "/todos/" + t.id));
   S.todos = S.todos.filter(t => !t.done);
   save();
   renderTodos();
@@ -1005,10 +1218,12 @@ function addMemo() {
   const el = document.getElementById("memoInput");
   const text = (el.value || "").trim();
   if (!text) { el.focus(); return; }
-  S.memos.unshift({ id: uid("mm"), text: text.slice(0, 4000), at: nowStr(), updatedAt: "" });
+  const m = { id: uid("mm"), text: text.slice(0, 4000), at: nowStr(), updatedAt: "" };
+  S.memos.unshift(m);
   el.value = "";
   save();
   renderMemos();
+  queue("PUT", "/memos/" + m.id, m);
   toast("메모를 저장했습니다.");
 }
 function editMemo(id) { editingMemo = id; renderMemos(); }
@@ -1017,7 +1232,7 @@ function saveMemo(id) {
   const text = el ? el.value.trim() : "";
   if (!text) { toast("내용을 적어 주세요."); return; }
   const m = S.memos.find(x => x.id === id);
-  if (m) { m.text = text.slice(0, 4000); m.updatedAt = nowStr(); save(); }
+  if (m) { m.text = text.slice(0, 4000); m.updatedAt = nowStr(); save(); queue("PATCH", "/memos/" + id, { text: m.text, updatedAt: m.updatedAt }); }
   editingMemo = "";
   renderMemos();
 }
@@ -1026,6 +1241,7 @@ function deleteMemo(id) {
   S.memos = S.memos.filter(m => m.id !== id);
   save();
   renderMemos();
+  queue("DELETE", "/memos/" + id);
 }
 
 /* ============================ 설정·주문 현황 ============================ */
@@ -1045,6 +1261,10 @@ function numOrNull(v) {
   return Number.isFinite(n) ? n : null;
 }
 
+function pushSummary() {
+  if (S.summary) queue("PUT", "/summary", S.summary);
+}
+
 function saveSettings() {
   S.settings.owner = document.getElementById("setOwner").value.trim() || "김경진";
   S.settings.apiBase = document.getElementById("setApiBase").value.trim();
@@ -1055,6 +1275,7 @@ function saveSettings() {
   if (paid !== null || prep !== null || unmapped !== null) {
     S.summary.paid = paid; S.summary.preparing = prep; S.summary.unmapped = unmapped;
     S.summary.source = "직접 입력"; S.summary.at = nowStr();
+    pushSummary();
   }
   save();
   closeSettings();
@@ -1072,6 +1293,7 @@ function applyOrders(orders, source) {
   S.summary.source = source;
   S.summary.at = nowStr();
   save();
+  pushSummary();
   renderWork();
 }
 
@@ -1114,18 +1336,22 @@ function importSummary(input) {
       S.summary.at = nowStr();
       let merged = false;
       if (data.state && data.state.rooms) {
-        if (confirm("PC 비서실의 대화·할 일·메모도 함께 가져올까요? 지금 이 브라우저 내용은 덮어써집니다.")) {
-          S.rooms = Object.assign(freshState().rooms, data.state.rooms);
-          S.todos = data.state.todos || [];
-          S.memos = data.state.memos || [];
-          if (data.state.activeRoom) S.activeRoom = data.state.activeRoom;
+        if (confirm("PC 비서실의 대화·할 일·메모도 함께 올릴까요? 클라우드 내용에 더해집니다.")) {
+          Object.keys(data.state.rooms).forEach(r => {
+            (data.state.rooms[r] || []).forEach(m => {
+              if (m && m.id && m.text && !m.auto) queue("PUT", "/messages/" + m.id, stripLocal(m));
+            });
+          });
+          (data.state.todos || []).forEach(t => { if (t && t.id) queue("PUT", "/todos/" + t.id, t); });
+          (data.state.memos || []).forEach(m => { if (m && m.id) queue("PUT", "/memos/" + m.id, m); });
           merged = true;
         }
       }
       save();
+      pushSummary();
       renderAll();
       closeSettings();
-      toast(merged ? "PC 비서실 내용까지 가져왔습니다." : "주문 요약을 가져왔습니다.");
+      toast(merged ? "PC 비서실 내용까지 올렸습니다." : "주문 요약을 올렸습니다.");
     } catch (e) {
       toast("파일을 읽지 못했습니다: " + e.message);
     }
@@ -1145,7 +1371,7 @@ function exportJson() {
   document.body.appendChild(a);
   a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-  toast("내보냈습니다. 다른 기기에서 '가져오기'로 열 수 있습니다.");
+  toast("내보냈습니다. 백업용 파일입니다.");
 }
 
 function importJson(input) {
@@ -1157,14 +1383,17 @@ function importJson(input) {
       const data = JSON.parse(reader.result);
       const st = data.state || data;
       if (!st || !st.rooms) throw new Error("비서실 파일이 아닙니다");
-      if (!confirm("지금 이 브라우저의 내용을 가져온 파일로 바꿀까요?")) return;
-      S = Object.assign(freshState(), st);
-      S.rooms = Object.assign(freshState().rooms, st.rooms);
-      S.settings = Object.assign(freshState().settings, st.settings || {});
-      S.summary = Object.assign(freshState().summary, st.summary || {});
-      save();
-      renderAll();
-      toast("가져왔습니다.");
+      if (!confirm("이 백업 파일의 대화·할 일·메모를 클라우드에 올릴까요? (같은 항목은 덮어씁니다)")) return;
+      let n = 0;
+      Object.keys(st.rooms).forEach(r => {
+        (st.rooms[r] || []).forEach(m => {
+          if (m && m.id && m.text && !m.auto) { queue("PUT", "/messages/" + m.id, stripLocal(m)); n++; }
+        });
+      });
+      (st.todos || []).forEach(t => { if (t && t.id) { queue("PUT", "/todos/" + t.id, t); n++; } });
+      (st.memos || []).forEach(m => { if (m && m.id) { queue("PUT", "/memos/" + m.id, m); n++; } });
+      if (st.summary) queue("PUT", "/summary", st.summary);
+      toast(n + "건을 올렸습니다.");
     } catch (e) {
       toast("파일을 읽지 못했습니다: " + e.message);
     }
@@ -1174,7 +1403,9 @@ function importJson(input) {
 }
 
 function resetAll() {
-  if (!confirm("이 브라우저의 비서실 내용을 모두 지울까요? (되돌릴 수 없습니다)")) return;
+  if (!confirm("비서실의 대화·할 일·메모를 클라우드에서 모두 지울까요? (PC·휴대폰 모두에서 사라집니다)")) return;
+  if (!confirm("정말 지웁니다. 되돌릴 수 없습니다.")) return;
+  ["/messages", "/todos", "/memos", "/summary"].forEach(p => queue("DELETE", p));
   S = freshState();
   save();
   renderAll();
@@ -1194,6 +1425,8 @@ document.getElementById("settingsModal").addEventListener("click", e => {
   if (e.target.id === "settingsModal") closeSettings();
 });
 renderAll();
+startSync();
+
 </script>
 </body>
 </html>
