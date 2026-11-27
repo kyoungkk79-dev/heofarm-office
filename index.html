@@ -818,7 +818,7 @@ function applyRemote(data) {
   todos.sort((a, b) => String(a.at || "").localeCompare(String(b.at || "")));
   const memos = Object.keys(d.memos || {}).map(k => d.memos[k]).filter(m => m && m.id && m.text);
   memos.sort((a, b) => String(b.at || "").localeCompare(String(a.at || "")));
-  const summary = (d.summary && typeof d.summary === "object") ? Object.assign(freshState().summary, d.summary) : S.summary;
+  const summary = (d.summary && typeof d.summary === "object") ? Object.assign(freshState().summary, d.summary) : freshState().summary;
 
   const sig = JSON.stringify([rooms, todos, memos, summary]);
   if (sig === SYNC.sig) return;         /* 바뀐 게 없으면 다시 그리지 않는다 (깜빡임·스크롤 튐 방지) */
