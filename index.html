@@ -682,7 +682,7 @@ function freshState() {
 
 let S = loadState();
 let OUTBOX = loadOutbox();
-let SYNC = { state: "idle", error: "", flushing: false, lastAt: 0, sig: "" };
+let SYNC = { state: "idle", error: "", flushing: false, lastAt: 0, sig: "", rev: "", lastFull: 0 };
 const LOCAL_MARKS = {};
 
 function loadState() {
@@ -735,10 +735,19 @@ function api(method, path, value) {
   });
 }
 
-function queue(method, path, value) {
+function queue(method, path, value, skipBump) {
   OUTBOX.push({ method: method, path: path, value: value, at: Date.now() });
   saveOutbox();
   flushOutbox();
+  if (!skipBump && String(path).indexOf("/meta/rev") !== 0) bumpRev();
+}
+
+/* 다른 기기(허팜이·부대장)가 답을 남겼는지 3초마다 작은 신호만 확인한다.
+   신호(meta/rev)가 바뀌면 그때만 전체 내용을 내려받아 무료 사용량을 아낀다. */
+function bumpRev() {
+  const n = String(Date.now());
+  SYNC.rev = n;
+  queue("PUT", "/meta/rev", { n: n, at: nowStr() }, true);
 }
 
 function flushOutbox() {
@@ -844,13 +853,24 @@ function applyRemote(data) {
   renderAll();
 }
 
-async function pull() {
+async function pull(forceFull) {
   try {
+    if (!forceFull && SYNC.lastFull) {
+      const rev = await api("GET", "/meta/rev");
+      const n = (rev && rev.n) ? String(rev.n) : "";
+      if (n && n === SYNC.rev && Date.now() - SYNC.lastFull < 60000) {
+        SYNC.state = "online"; SYNC.error = ""; SYNC.lastAt = Date.now();
+        setSyncLabel(); flushOutbox();
+        return;
+      }
+    }
     const data = await api("GET", "");
-    SYNC.state = "online"; SYNC.error = ""; SYNC.lastAt = Date.now();
+    SYNC.state = "online"; SYNC.error = ""; SYNC.lastAt = Date.now(); SYNC.lastFull = Date.now();
     if (data === null) {
       seedCloud();
     } else {
+      const rev = data.meta && data.meta.rev && data.meta.rev.n ? String(data.meta.rev.n) : "";
+      if (rev) SYNC.rev = rev;
       applyRemote(data);
     }
   } catch (e) {
@@ -866,13 +886,13 @@ function seedCloud() {
   Object.keys(S.rooms).forEach(r => {
     (S.rooms[r] || []).forEach(m => {
       if (!m || !m.id || !m.text) return;
-      queue("PUT", "/messages/" + m.id, stripLocal(m)); n++;
+      queue("PUT", "/messages/" + m.id, stripLocal(m), true); n++;
     });
   });
-  (S.todos || []).forEach(t => { if (t && t.id) { queue("PUT", "/todos/" + t.id, t); n++; } });
-  (S.memos || []).forEach(m => { if (m && m.id) { queue("PUT", "/memos/" + m.id, m); n++; } });
-  if (S.summary && (S.summary.paid !== null || S.summary.at)) queue("PUT", "/summary", S.summary);
-  if (n) toast("이 기기의 기록 " + n + "건을 클라우드에 올렸습니다");
+  (S.todos || []).forEach(t => { if (t && t.id) { queue("PUT", "/todos/" + t.id, t, true); n++; } });
+  (S.memos || []).forEach(m => { if (m && m.id) { queue("PUT", "/memos/" + m.id, m, true); n++; } });
+  if (S.summary && (S.summary.paid !== null || S.summary.at)) queue("PUT", "/summary", S.summary, true);
+  if (n) { bumpRev(); toast("이 기기의 기록 " + n + "건을 클라우드에 올렸습니다"); }
 }
 
 function startSync() {
