@@ -186,7 +186,10 @@
     flex: 1; min-height: 0; width: 100%; max-width: 920px; margin: 0 auto;
     display: flex; flex-direction: column; padding: 0 12px;
   }
-  .of-hd { display: flex; align-items: center; gap: 10px; padding: 8px 2px 9px; flex: none; }
+  .of-hd {
+    position: static; z-index: auto; background: transparent; border: 0; flex-wrap: nowrap;
+    display: flex; align-items: center; gap: 10px; padding: 8px 2px 9px; flex: none;
+  }
   .of-mark {
     width: 38px; height: 38px; border-radius: 12px; flex: none; display: grid; place-items: center; color: #fff;
     background: linear-gradient(150deg, #6366F1, #4338CA); box-shadow: 0 6px 14px -8px rgba(67,56,202,.9);
@@ -2286,6 +2289,7 @@ loadLocal(true);
   try { localStorage.setItem("hf_mode", "office"); } catch (e) {}
   setMode("office");
   ofLoad(true);
+  setTimeout(function(){ ofLive(true); }, 1200);
 })();
 </script>
 </body>
