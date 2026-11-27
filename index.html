@@ -2,333 +2,608 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#A9682F">
-<meta name="description" content="허니스윗팜 비서실 — 지휘실·작업실·비서현황·메모">
-<title>👑 허니스윗팜 비서실</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F6F7F9">
+<meta name="color-scheme" content="light">
+<meta name="description" content="허니스윗팜 비서실 — 회의실·작업실·비서현황·메모">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>허니스윗팜 비서실</title>
 <style>
   :root {
-    --bg: #FBF6EE; --panel: #FFFDF8; --panel2: #FFF9F0; --border: #EDDFC9;
-    --text: #463225; --muted: #9A8570; --accent: #A9682F; --accent-bg: #F3E3CE;
-    --green: #2C8A57; --green-bg: #E8F5EC; --red: #BF5348;
+    --bg: #F6F7F9;
+    --card: #FFFFFF;
+    --card2: #F2F4F6;
+    --line: #E5E8EB;
+    --line-soft: #EEF0F3;
+    --ink: #191F28;
+    --ink2: #4E5968;
+    --muted: #8B95A1;
+    --muted2: #AEB6BF;
+    --primary: #4F46E5;
+    --primary-2: #4338CA;
+    --primary-weak: #EEF0FF;
+    --primary-line: #DCDEFB;
+    --green: #0E9F6E;
+    --green-weak: #E7F7F0;
+    --amber: #C2740B;
+    --amber-weak: #FFF4E3;
+    --red: #E5484D;
+    --red-weak: #FDECEC;
+    --r-xl: 22px;
+    --r-lg: 18px;
+    --r-md: 14px;
+    --r-sm: 10px;
+    --shadow-card: 0 1px 2px rgba(17, 24, 39, .04), 0 12px 28px -22px rgba(17, 24, 39, .45);
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; }
+  html, body { margin: 0; height: 100%; }
   body {
-    background: var(--bg); color: var(--text); font-size: 13px;
-    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    background: var(--bg); color: var(--ink);
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    font-size: 14px; line-height: 1.5; letter-spacing: -.01em;
+    -webkit-text-size-adjust: 100%;
   }
-  button, input, textarea, select { font-family: inherit; }
-  .wrap { max-width: 860px; margin: 0 auto; padding: 14px 14px 48px; }
+  button, input, textarea, select { font: inherit; color: inherit; }
+  button { -webkit-appearance: none; appearance: none; }
+  svg.ic { display: block; flex: none; }
+  [hidden] { display: none !important; }
 
-  .head {
-    display: flex; align-items: center; gap: 10px; background: var(--panel);
-    border: 1px solid var(--border); border-radius: 18px; padding: 11px 13px;
-    box-shadow: 0 2px 12px rgba(130,90,45,.07);
+  /* ---------- 앱 껍데기 ---------- */
+  .app {
+    height: 100vh; height: 100dvh;
+    max-width: 920px; margin: 0 auto;
+    display: flex; flex-direction: column;
+    padding: 0 12px;
   }
-  .logo {
-    width: 42px; height: 42px; border-radius: 50%; flex: none; font-size: 21px;
-    background: linear-gradient(#F7E2C4, #E9C698); border: 1px solid #E2C49B;
-    display: flex; align-items: center; justify-content: center;
+
+  /* ---------- 헤더 ---------- */
+  .hd { display: flex; align-items: center; gap: 10px; padding: 12px 2px 10px; flex: none; }
+  .mark {
+    width: 38px; height: 38px; border-radius: 12px; flex: none;
+    display: grid; place-items: center; color: #fff;
+    background: linear-gradient(150deg, #6366F1, #4338CA);
+    box-shadow: 0 6px 14px -8px rgba(67, 56, 202, .9);
   }
-  .title { font-size: 16.5px; font-weight: 800; letter-spacing: -.3px; }
-  .sub { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 5px; margin-top: 2px; }
-  .dotg { width: 7px; height: 7px; border-radius: 50%; background: #3FA36B; display: inline-block; }
-  .live {
-    margin-left: auto; font-size: 11px; font-weight: 800; color: var(--green); background: var(--green-bg);
-    border: 1px solid #CBE7D6; border-radius: 999px; padding: 5px 10px; white-space: nowrap;
-    cursor: pointer;
+  .hd-tx { min-width: 0; flex: 1; }
+  .hd-title { font-size: 16px; font-weight: 700; letter-spacing: -.02em; }
+  .hd-sub { display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px var(--green-weak); flex: none; }
+
+  .icon-btn {
+    width: 36px; height: 36px; flex: none; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--card); color: var(--ink2); display: grid; place-items: center; cursor: pointer;
+    transition: background .15s, border-color .15s;
   }
+  .icon-btn:hover { background: var(--card2); border-color: #D9DEE4; }
+
+  /* ---------- 저장 안내 1줄 ---------- */
+  .strip {
+    display: flex; align-items: center; gap: 6px; padding: 0 2px 8px;
+    font-size: 11.5px; color: var(--muted); flex: none;
+  }
+  .strip .ic { color: var(--muted2); }
+  .strip-tx { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .strip-btn {
+    margin-left: auto; border: 0; background: none; padding: 2px 0 2px 6px;
+    color: var(--primary); font-size: 11.5px; font-weight: 600; cursor: pointer; flex: none;
+  }
+  .strip-more {
+    font-size: 11.5px; line-height: 1.65; color: var(--muted);
+    background: var(--card); border: 1px solid var(--line-soft); border-radius: var(--r-md);
+    padding: 10px 12px; margin: 0 0 8px; flex: none;
+  }
+  .strip-more b { color: var(--ink2); font-weight: 600; }
+
+  /* ---------- 탭 ---------- */
   .tabs {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin: 10px 0; padding: 5px;
-    background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; padding: 4px;
+    background: var(--card2); border-radius: var(--r-md); flex: none;
   }
   .tab {
-    border: 0; background: transparent; color: #8C7761; padding: 8px 2px; border-radius: 12px;
-    display: flex; flex-direction: column; align-items: center; gap: 2px;
-    font-size: 11.5px; font-weight: 800; cursor: pointer;
+    border: 0; background: transparent; color: var(--muted); border-radius: 11px;
+    padding: 8px 2px 7px; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-size: 11.5px; font-weight: 600; cursor: pointer; transition: color .15s, background .15s;
   }
-  .tab .ic { font-size: 17px; }
-  .tab.active { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(150,90,40,.22); }
+  .tab .ic { width: 19px; height: 19px; }
+  .tab.active {
+    background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(17,24,39,.06);
+  }
+  .tab.active .ic { color: var(--primary); }
+
+  /* ---------- 본문 ---------- */
+  .main { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 10px 0 0; }
+  .sec { flex: 1; min-height: 0; }
+  .sec.scroll { overflow-y: auto; overscroll-behavior: contain; padding: 0 1px 14px; }
+
   .card {
-    background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 12px;
-    margin-bottom: 10px; box-shadow: 0 1px 6px rgba(130,90,45,.04);
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg);
+    padding: 15px; margin-bottom: 10px; box-shadow: var(--shadow-card);
   }
-  .card h4 { margin: 0 0 8px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
-  .card h4 .hint { margin-left: auto; font-size: 10.5px; color: var(--muted); font-weight: 600; }
+  .card-hd { display: flex; align-items: center; gap: 7px; margin-bottom: 12px; }
+  .card-hd .ic { color: var(--ink2); }
+  .card-hd h4 { margin: 0; font-size: 13.5px; font-weight: 700; letter-spacing: -.02em; }
+  .card-hd .hint { margin-left: auto; font-size: 11px; color: var(--muted); font-weight: 500; }
 
-  .note {
-    background: #FFF4E2; border: 1px solid #F0DFC4; border-radius: 13px; padding: 10px 11px;
-    font-size: 11.5px; color: #7A6551; margin: 10px 0; line-height: 1.6;
+  /* ---------- 회의실 ---------- */
+  #secRoom { display: flex; flex-direction: column; min-height: 0; }
+  .chat {
+    flex: 1; min-height: 0; display: flex; flex-direction: column;
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg);
+    box-shadow: var(--shadow-card); overflow: hidden;
   }
-  .note b { color: #7A4E23; }
-  .note code { background: var(--panel); border: 1px solid #EADCC7; border-radius: 6px; padding: 1px 5px; font-size: 11px; word-break: break-all; }
-
-  .rooms { display: flex; gap: 6px; flex-wrap: wrap; }
+  .rooms {
+    display: flex; gap: 6px; padding: 11px 12px 0; flex: none;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .rooms::-webkit-scrollbar { display: none; }
   .room {
-    border: 1px solid #E7D6BE; background: var(--panel2); color: #7A6551; border-radius: 999px;
-    padding: 7px 12px; font-size: 12px; font-weight: 800; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 5px; flex: none;
+    border: 1px solid var(--line); background: var(--card); color: var(--ink2);
+    border-radius: 999px; padding: 7px 12px; font-size: 12.5px; font-weight: 600; cursor: pointer;
+    transition: all .15s;
   }
-  .room.active { border-color: #E7A3A0; background: #FBEDEA; color: #A6534C; }
-  .roominfo { font-size: 11.5px; color: var(--muted); margin: 9px 2px 2px; display: flex; gap: 6px; flex-wrap: wrap; }
-  .msgs { min-height: 200px; max-height: min(52vh, 460px); overflow-y: auto; padding: 4px 2px 2px; }
-  .msg { display: flex; gap: 7px; margin: 10px 0; align-items: flex-start; }
+  .room .ic { width: 15px; height: 15px; color: var(--muted); }
+  .room.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .room.active .ic { color: #fff; }
+
+  .roommeta {
+    display: flex; align-items: center; gap: 7px; padding: 9px 14px 11px;
+    border-bottom: 1px solid var(--line-soft); flex: none; min-width: 0;
+  }
+  .rm-name { font-size: 12.5px; font-weight: 700; }
+  .rm-info { font-size: 11.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ghost-btn {
+    margin-left: auto; flex: none; border: 0; background: none; color: var(--muted);
+    font-size: 11.5px; font-weight: 600; padding: 4px 2px 4px 8px; cursor: pointer;
+  }
+  .ghost-btn:hover { color: var(--red); }
+
+  .msgs {
+    flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+    display: flex; flex-direction: column; gap: 14px; padding: 16px 14px 8px;
+  }
+  .msg { display: flex; gap: 9px; align-items: flex-start; }
   .msg.me { flex-direction: row-reverse; }
   .av {
-    width: 30px; height: 30px; border-radius: 50%; flex: none; font-size: 14px;
-    display: flex; align-items: center; justify-content: center;
-    border: 1px solid #EAD9C0; background: #FFF6E8;
+    width: 30px; height: 30px; border-radius: 11px; flex: none;
+    display: grid; place-items: center; font-size: 12px; font-weight: 700;
+
+    background: var(--card2); color: var(--ink2); border: 1px solid var(--line);
   }
-  .av.owner { background: #FBEDE7; border-color: #EFD3C9; }
-  .av.helper { background: #EAF2FA; border-color: #CFE0F0; }
-  .body { max-width: 80%; }
-  .meta { font-size: 10.5px; color: var(--muted); margin: 0 2px 3px; }
-  .msg.me .meta { text-align: right; }
-  .meta b { color: #6E5844; }
+  .av.owner { background: var(--primary-weak); color: var(--primary-2); border-color: var(--primary-line); }
+  .av.helper { background: #EAF6F0; color: #0B7A55; border-color: #D4EDE2; }
+  .body { max-width: 78%; min-width: 0; }
+  .meta {
+    display: flex; align-items: center; gap: 5px; margin: 0 2px 5px;
+    font-size: 11px; color: var(--muted); flex-wrap: wrap;
+  }
+  .msg.me .meta { justify-content: flex-end; }
+  .meta b { color: var(--ink2); font-weight: 600; }
   .bubble {
-    background: var(--panel); border: 1px solid #F0E3CE; border-radius: 14px; padding: 9px 11px;
-    font-size: 13px; line-height: 1.55; white-space: pre-wrap; word-break: break-word;
+    padding: 10px 13px; border-radius: 16px; font-size: 13.5px; line-height: 1.6;
+    white-space: pre-wrap; word-break: break-word;
+    background: var(--card); border: 1px solid var(--line); color: var(--ink);
+    border-top-left-radius: 6px;
   }
-  .msg.me .bubble { background: #FBE7E3; border-color: #F2D2CC; }
-  .auto { font-size: 9.5px; color: var(--muted); background: #F4EBDD; border-radius: 6px; padding: 1px 5px; margin-left: 4px; }
+  .msg.me .bubble {
+    background: var(--primary); border-color: var(--primary); color: #fff;
+    border-top-left-radius: 16px; border-top-right-radius: 6px;
+  }
+  .ack {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 10px; font-weight: 600; color: var(--primary-2);
+    background: var(--primary-weak); border-radius: 6px; padding: 1px 6px;
+  }
 
-  .composer { border-top: 1px dashed #EADCC7; padding-top: 9px; margin-top: 4px; }
-  .sender { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); margin-bottom: 7px; flex-wrap: wrap; }
-  .who {
-    display: inline-flex; align-items: center; gap: 4px; background: #FBEDE7; border: 1px solid #EFD3C9;
-    color: #8C5B48; border-radius: 999px; padding: 3px 9px; font-size: 11.5px; font-weight: 800;
+  .empty {
+    margin: auto; text-align: center; color: var(--muted); font-size: 12.5px; line-height: 1.75; padding: 20px;
   }
-  .mentions { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 7px; }
+  .empty .ic { margin: 0 auto 10px; color: var(--muted2); width: 26px; height: 26px; }
+
+  /* ---------- 입력 ---------- */
+  .composer {
+    flex: none; padding: 8px 12px calc(10px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line-soft); background: var(--card);
+  }
+  .mentions {
+    display: flex; gap: 6px; margin-bottom: 8px; overflow-x: auto; scrollbar-width: none;
+    align-items: center;
+  }
+  .mentions::-webkit-scrollbar { display: none; }
+  .mentions .lbl { font-size: 11px; color: var(--muted); flex: none; margin-right: 1px; }
   .mention {
-    border: 1px dashed #DFC9AB; background: #FFF8EC; color: #8A6A47; border-radius: 999px;
-    padding: 5px 9px; font-size: 11px; font-weight: 800; cursor: pointer;
+    flex: none; border: 1px solid var(--line); background: var(--card); color: var(--ink2);
+    border-radius: 999px; padding: 5px 10px; font-size: 11.5px; font-weight: 600; cursor: pointer;
+    transition: all .15s;
   }
-  .inputrow { display: flex; gap: 7px; align-items: flex-end; }
+  .mention:hover { border-color: var(--primary-line); background: var(--primary-weak); color: var(--primary-2); }
+  .inputrow { display: flex; gap: 8px; align-items: flex-end; }
   .inputrow textarea {
-    flex: 1; min-height: 44px; max-height: 130px; resize: vertical; background: var(--panel);
-    border: 1px solid #E4D3B8; border-radius: 12px; padding: 10px; font-size: 13px; color: var(--text);
+    flex: 1; min-height: 46px; max-height: 120px; resize: none;
+    background: var(--card2); border: 1px solid transparent; border-radius: var(--r-md);
+    padding: 12px 14px; font-size: 13.5px; line-height: 1.45; outline: none;
+    transition: background .15s, border-color .15s;
   }
+  .inputrow textarea::placeholder { color: var(--muted2); }
+  .inputrow textarea:focus { background: var(--card); border-color: var(--primary-line); }
   .send {
-    border: 0; background: var(--accent); color: #fff; border-radius: 12px; padding: 11px 15px;
-    font-size: 13px; font-weight: 800; cursor: pointer; white-space: nowrap;
+    width: 46px; height: 46px; flex: none; border: 0; border-radius: var(--r-md);
+    background: var(--primary); color: #fff; display: grid; place-items: center; cursor: pointer;
+    box-shadow: 0 6px 14px -10px rgba(79, 70, 229, .9); transition: background .15s, transform .1s;
   }
-  .send:disabled { opacity: .5; }
+  .send:hover { background: var(--primary-2); }
+  .send:active { transform: scale(.96); }
+  .send:disabled { opacity: .45; }
+  .foot-note { font-size: 10.5px; color: var(--muted2); margin-top: 7px; padding-left: 2px; }
 
-  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
-  .kpi { background: var(--panel2); border: 1px solid #EADCC7; border-radius: 13px; padding: 10px; text-align: center; }
-  .kpi .v { font-size: 22px; font-weight: 900; letter-spacing: -1px; }
-  .kpi .l { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
-  .kpi.paid .v { color: #C0762A; } .kpi.prep .v { color: var(--green); } .kpi.unmapped .v { color: var(--red); }
-  .sub2 { font-size: 11px; color: #8C7761; margin-top: 8px; line-height: 1.7; }
-
-  .sched { display: flex; align-items: center; gap: 8px; padding: 7px 2px; border-bottom: 1px dashed #F0E4D1; font-size: 12px; }
-  .sched:last-child { border-bottom: 0; }
-  .time { font-weight: 900; color: #8A5A2E; width: 44px; flex: none; }
-  .sched .nm { font-weight: 700; }
-  .sched .ds { font-size: 10.5px; color: var(--muted); }
-  .badge { margin-left: auto; font-size: 10px; font-weight: 800; border-radius: 999px; padding: 3px 8px; flex: none; }
-  .badge.done { background: #EFEAE1; color: var(--muted); }
-  .badge.wait { background: var(--green-bg); color: var(--green); }
-  .badge.off { background: #F5EEE3; color: #B09A80; }
-
-  .todo { display: flex; align-items: center; gap: 8px; padding: 8px 2px; border-bottom: 1px dashed #F0E4D1; }
-  .todo:last-child { border-bottom: 0; }
-  .todo input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); flex: none; }
-  .todo .tx { flex: 1; font-size: 12.5px; word-break: break-word; cursor: pointer; }
-  .todo.done .tx { text-decoration: line-through; color: #B09A80; }
-  .add { display: flex; gap: 6px; margin-top: 9px; }
-  .add input, .editbox {
-    flex: 1; width: 100%; background: var(--panel); border: 1px solid #E4D3B8; border-radius: 11px;
-    padding: 9px 10px; font-size: 12.5px; color: var(--text);
+  /* ---------- KPI ---------- */
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .kpi {
+    background: var(--card2); border-radius: var(--r-md); padding: 12px 11px;
+    border: 1px solid transparent;
   }
-  .add button {
-    border: 0; background: var(--accent); color: #fff; border-radius: 11px; padding: 0 13px;
-    font-size: 12.5px; font-weight: 800; cursor: pointer;
-  }
-  .person { display: flex; gap: 10px; align-items: flex-start; padding: 10px 2px; border-bottom: 1px dashed #F0E4D1; }
-  .person:last-child { border-bottom: 0; }
-  .person .nm { font-weight: 800; font-size: 13px; }
-  .person .nm span { font-weight: 600; color: var(--muted); }
-  .person .rl { font-size: 10.5px; color: var(--muted); }
-  .person .ds { font-size: 11.5px; color: #7A6551; margin-top: 2px; }
-
-  .memo { background: var(--panel2); border: 1px solid #EADCC7; border-radius: 13px; padding: 10px 11px; margin-bottom: 8px; }
-  .memo .tx { font-size: 12.5px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
-  .memo .ft { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 10.5px; color: var(--muted); }
-  .memo textarea { width: 100%; min-height: 90px; background: var(--panel); border: 1px solid #E4D3B8; border-radius: 10px; padding: 9px; font-size: 12.5px; color: var(--text); }
-  #memoInput { width: 100%; min-height: 92px; resize: vertical; background: var(--panel); border: 1px solid #E4D3B8; border-radius: 12px; padding: 10px; font-size: 12.5px; color: var(--text); }
+  .kpi .l { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); font-weight: 500; }
+  .kpi .l i { width: 5px; height: 5px; border-radius: 50%; background: var(--muted2); flex: none; }
+  .kpi .v { font-size: 24px; font-weight: 700; letter-spacing: -.03em; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .kpi.paid .v { color: var(--amber); } .kpi.paid .l i { background: var(--amber); }
+  .kpi.prep .v { color: var(--green); } .kpi.prep .l i { background: var(--green); }
+  .kpi.unmapped .v { color: var(--red); } .kpi.unmapped .l i { background: var(--red); }
+  .kpi-more { font-size: 11.5px; color: var(--muted); margin-top: 11px; line-height: 1.65; }
+  .row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
 
   .btn {
-    border: 1px solid #E4D3B8; background: var(--panel); color: #8A6A47; border-radius: 8px;
-    padding: 5px 10px; font-size: 10.5px; font-weight: 800; cursor: pointer;
+    border: 1px solid var(--line); background: var(--card); color: var(--ink2);
+    border-radius: var(--r-sm); padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 5px; transition: all .15s;
   }
-  .btn.solid { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .link { border: 0; background: transparent; color: var(--accent); font-size: 11px; font-weight: 800; cursor: pointer; padding: 2px 4px; }
-  .link.del { color: var(--red); }
-  .empty { text-align: center; color: #B09A80; font-size: 12px; padding: 18px 6px; line-height: 1.7; }
-  .row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .btn:hover { background: var(--card2); }
+  .btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .btn.primary:hover { background: var(--primary-2); }
+  .btn.quiet { border-color: transparent; background: var(--card2); color: var(--ink2); }
+  .btn.danger { color: var(--red); }
+  .btn .ic { width: 15px; height: 15px; }
+  .link { border: 0; background: none; color: var(--primary); font-size: 11.5px; font-weight: 600; cursor: pointer; padding: 3px 2px; }
+  .link.del { color: var(--muted); }
+  .link.del:hover { color: var(--red); }
 
-  .modal-bg { position: fixed; inset: 0; background: rgba(60,40,25,.42); display: none; align-items: center; justify-content: center; z-index: 80; padding: 14px; }
-  .modal-bg.open { display: flex; }
-  .modal { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; width: 100%; max-width: 460px; padding: 15px; max-height: 88vh; overflow-y: auto; }
-  .modal h3 { margin: 0 0 10px; font-size: 15px; }
-  .modal label { display: block; font-size: 11.5px; color: var(--muted); margin: 10px 0 4px; font-weight: 700; }
-  .modal input[type="text"], .modal input[type="password"], .modal input[type="number"] {
-    width: 100%; background: var(--panel2); border: 1px solid #E4D3B8; border-radius: 10px;
-    padding: 9px 10px; font-size: 12.5px; color: var(--text);
+  /* ---------- 스케줄 타임라인 ---------- */
+  .tl { display: flex; flex-direction: column; }
+  .tl-row {
+    display: grid; grid-template-columns: 42px 12px 1fr auto; gap: 9px;
+    align-items: start; padding: 9px 0; position: relative;
   }
-  .modal .help { font-size: 10.5px; color: var(--muted); line-height: 1.6; margin-top: 4px; }
+  .tl-row + .tl-row { border-top: 1px solid var(--line-soft); }
+  .tl-time { font-size: 12px; font-weight: 700; color: var(--ink2); font-variant-numeric: tabular-nums; padding-top: 1px; }
+  .tl-rail { display: flex; justify-content: center; padding-top: 5px; }
+  .tl-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+  .tl-row.wait .tl-dot { background: var(--primary); box-shadow: 0 0 0 3px var(--primary-weak); }
+  .tl-row.done .tl-dot { background: var(--green); }
+  .tl-name { font-size: 12.5px; font-weight: 600; }
+  .tl-who { font-size: 11px; color: var(--muted); font-weight: 500; margin-left: 4px; }
+  .tl-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .badge {
+    flex: none; font-size: 10.5px; font-weight: 600; border-radius: 999px; padding: 3px 8px; margin-top: 1px;
+  }
+  .badge.done { background: var(--card2); color: var(--muted); }
+  .badge.wait { background: var(--primary-weak); color: var(--primary-2); }
+  .badge.off { background: var(--card2); color: var(--muted2); }
+
+  /* ---------- 할 일 ---------- */
+  .todo {
+    display: flex; align-items: center; gap: 10px; padding: 9px 0;
+  }
+  .todo + .todo { border-top: 1px solid var(--line-soft); }
+  .todo input[type="checkbox"] {
+    width: 19px; height: 19px; flex: none; accent-color: var(--primary); cursor: pointer; margin: 0;
+  }
+  .todo .tx { flex: 1; font-size: 13px; word-break: break-word; cursor: pointer; min-width: 0; }
+  .todo.done .tx { color: var(--muted2); text-decoration: line-through; }
+  .todo .x { border: 0; background: none; color: var(--muted2); cursor: pointer; padding: 2px 2px 2px 6px; }
+  .todo .x:hover { color: var(--red); }
+  .addrow { display: flex; gap: 7px; margin-top: 11px; }
+  .addrow input, .editbox {
+    flex: 1; min-width: 0; background: var(--card2); border: 1px solid transparent;
+    border-radius: var(--r-sm); padding: 10px 12px; font-size: 13px; outline: none;
+  }
+  .addrow input:focus, .editbox:focus { background: var(--card); border-color: var(--primary-line); }
+  .addrow button {
+    flex: none; border: 0; background: var(--primary); color: #fff; border-radius: var(--r-sm);
+    padding: 0 14px; font-size: 12.5px; font-weight: 600; cursor: pointer;
+  }
+
+  /* ---------- 비서현황 ---------- */
+  .person { display: flex; gap: 11px; align-items: flex-start; padding: 11px 0; }
+  .person + .person { border-top: 1px solid var(--line-soft); }
+  .person .nm { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .person .nm span { font-size: 11.5px; font-weight: 500; color: var(--muted); }
+  .person .rl { font-size: 11px; color: var(--primary-2); background: var(--primary-weak); border-radius: 6px; padding: 1px 7px; display: inline-block; margin-top: 4px; }
+  .person .ds { font-size: 11.5px; color: var(--muted); margin-top: 5px; line-height: 1.6; }
+  .bullets { margin: 0; padding: 0; list-style: none; }
+  .bullets li { position: relative; padding-left: 13px; font-size: 12px; color: var(--ink2); line-height: 1.75; }
+  .bullets li::before {
+    content: ""; position: absolute; left: 2px; top: 9px; width: 4px; height: 4px; border-radius: 50%; background: var(--muted2);
+  }
+
+  /* ---------- 메모 ---------- */
+  .memo {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md);
+    padding: 13px 14px; margin-bottom: 8px; box-shadow: 0 1px 2px rgba(17,24,39,.03);
+  }
+  .memo .tx { font-size: 13px; line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
+  .memo .ft { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 11px; color: var(--muted2); }
+  .memo textarea {
+    width: 100%; min-height: 96px; resize: vertical; background: var(--card2);
+    border: 1px solid transparent; border-radius: var(--r-sm); padding: 11px 12px;
+    font-size: 13px; line-height: 1.6; outline: none;
+  }
+  #memoInput {
+    width: 100%; min-height: 92px; resize: vertical; background: var(--card2);
+    border: 1px solid transparent; border-radius: var(--r-md); padding: 12px 14px;
+    font-size: 13.5px; line-height: 1.6; outline: none;
+  }
+  #memoInput:focus { background: var(--card); border-color: var(--primary-line); }
+
+  /* ---------- 설정 시트 ---------- */
+  .sheet-bg {
+    position: fixed; inset: 0; background: rgba(23, 30, 42, .42);
+    display: none; align-items: flex-end; justify-content: center; z-index: 80;
+    padding: 0; backdrop-filter: blur(2px);
+  }
+  .sheet-bg.open { display: flex; }
+  .sheet {
+    width: 100%; max-width: 520px; background: var(--card);
+    border-radius: var(--r-xl) var(--r-xl) 0 0; padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
+    max-height: 90vh; overflow-y: auto;
+    animation: sheet-up .22s ease-out;
+  }
+  @keyframes sheet-up { from { transform: translateY(16px); opacity: .6; } to { transform: none; opacity: 1; } }
+  .grip { width: 38px; height: 4px; border-radius: 999px; background: var(--line); margin: 2px auto 10px; }
+  .sheet-hd { display: flex; align-items: center; margin-bottom: 6px; }
+  .sheet-hd h3 { margin: 0; font-size: 16px; font-weight: 700; letter-spacing: -.02em; }
+  .sheet label { display: block; font-size: 11.5px; font-weight: 600; color: var(--ink2); margin: 14px 0 6px; }
+  .sheet input[type="text"], .sheet input[type="password"], .sheet input[type="number"] {
+    width: 100%; background: var(--card2); border: 1px solid transparent; border-radius: var(--r-sm);
+    padding: 11px 12px; font-size: 13px; outline: none;
+  }
+  .sheet input:focus { background: var(--card); border-color: var(--primary-line); }
+  .help { font-size: 11px; color: var(--muted); line-height: 1.65; margin: 6px 0 0; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+  .sheet-note {
+    font-size: 11px; color: var(--muted); line-height: 1.7; background: var(--card2);
+    border-radius: var(--r-md); padding: 11px 12px; margin-top: 16px;
+  }
+  .sheet-note b { color: var(--ink2); font-weight: 600; }
+  .sheet-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 18px; }
+
+  /* ---------- 토스트 ---------- */
   .toast {
-    position: fixed; left: 50%; transform: translateX(-50%); bottom: 22px; background: #3C2B1E;
-    color: #FFF8EC; padding: 10px 15px; border-radius: 12px; z-index: 99; display: none;
-    font-weight: 700; font-size: 12.5px; max-width: 90vw; text-align: center;
+    position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom));
+    transform: translate(-50%, 10px); background: #1B2430; color: #fff;
+    padding: 11px 16px; border-radius: var(--r-md); z-index: 99; opacity: 0; pointer-events: none;
+    font-weight: 500; font-size: 12.5px; max-width: calc(100vw - 32px); text-align: center;
+    transition: opacity .2s, transform .2s; box-shadow: 0 12px 30px -12px rgba(17,24,39,.5);
   }
-  @media (max-width: 560px) {
-    .wrap { padding: 10px 10px 40px; }
-    .title { font-size: 15.5px; }
-    .msgs { max-height: 44vh; }
-    .body { max-width: 84%; }
-    .tab { font-size: 10.5px; }
-    .kpi .v { font-size: 20px; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (min-width: 720px) {
+    .app { padding: 0 20px; }
+    .hd { padding-top: 18px; }
+    .tabs { max-width: 520px; }
+    .body { max-width: 70%; }
+    .sec.scroll { padding-bottom: 20px; }
+  }
+  @media (max-width: 380px) {
+    .kpi .v { font-size: 21px; }
+    .tab { font-size: 11px; }
   }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="head">
-    <div class="logo">👑</div>
-    <div style="min-width:0;">
-      <div class="title">허니스윗팜 비서실</div>
-      <div class="sub"><span class="dotg"></span> 사장님 전용 · <span id="modeLabel">클라우드 모드</span></div>
+<div class="app">
+  <header class="hd">
+    <div class="mark">
+      <svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5 6.4 17h11.2L21 8.5l-4.6 3L12 5 7.6 11.5 3 8.5Z"/><path d="M6.4 20h11.2"/></svg>
     </div>
-    <span class="live" onclick="openSettings()">⚙ 설정</span>
-  </div>
+    <div class="hd-tx">
+      <div class="hd-title">허니스윗팜 비서실</div>
+      <div class="hd-sub"><span class="dot"></span>사장님 전용 · <span id="modeLabel">클라우드 모드</span></div>
+    </div>
+    <button class="icon-btn" onclick="openSettings()" aria-label="설정">
+      <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-6M4 11V3M12 21v-9M12 8V3M20 21v-4M20 13V3"/><circle cx="4" cy="13" r="2"/><circle cx="12" cy="10" r="2"/><circle cx="20" cy="15" r="2"/></svg>
+    </button>
+  </header>
 
-  <div class="note">
-    이 화면은 <b>브라우저 저장소(localStorage)</b>에 저장됩니다 — PC·휴대폰 어디서나 열 수 있지만,
-    기기마다 내용이 따로 저장되니 <b>내보내기/가져오기</b>로 옮겨 주세요.
-    주문함(PC 프로그램)과 같은 대화를 보려면 PC의 <code>비서실 → 메모 → 내보내기(JSON)</code> 파일을 가져오면 됩니다.
+  <div class="strip">
+    <svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.1"/></svg>
+    <span class="strip-tx">이 브라우저에만 저장됩니다</span>
+    <button class="strip-btn" id="stripBtn" onclick="toggleStrip()">자세히</button>
+  </div>
+  <div class="strip-more" id="stripMore" hidden>
+    PC·휴대폰 어디서나 열 수 있지만, 기기마다 내용이 따로 저장됩니다. <b>내보내기/가져오기</b>로 옮겨 주세요.
+    주문함(PC 프로그램)과 같은 대화를 보려면 PC의 <b>비서실 → 메모 → 내보내기(JSON)</b> 파일을 가져오면 됩니다.
   </div>
 
   <nav class="tabs" id="tabs">
-    <button class="tab active" data-sec="room" onclick="setSec('room')"><span class="ic">💬</span>회의실</button>
-    <button class="tab" data-sec="work" onclick="setSec('work')"><span class="ic">📋</span>작업실</button>
-    <button class="tab" data-sec="staff" onclick="setSec('staff')"><span class="ic">📊</span>비서현황</button>
-    <button class="tab" data-sec="memo" onclick="setSec('memo')"><span class="ic">📝</span>메모</button>
+    <button class="tab active" data-sec="room" onclick="setSec('room')">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 14.5a7.5 7.5 0 0 1-7.5 7.5 7.4 7.4 0 0 1-3.3-.8L4 22.5l1.3-5.9A7.5 7.5 0 1 1 21 14.5Z"/></svg>
+      회의실</button>
+    <button class="tab" data-sec="work" onclick="setSec('work')">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4.5" width="16" height="16.5" rx="2.5"/><path d="M9 3h6v3H9z"/><path d="m8.8 13 2.2 2.2 4.2-4.4"/></svg>
+      작업실</button>
+    <button class="tab" data-sec="staff" onclick="setSec('staff')">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1.6a4 4 0 0 0-4-4H6.5a4 4 0 0 0-4 4V20"/><circle cx="9.2" cy="7.6" r="3.6"/><path d="M21.5 20v-1.6a4 4 0 0 0-3-3.86M16.6 4.2a3.6 3.6 0 0 1 0 6.9"/></svg>
+      비서현황</button>
+    <button class="tab" data-sec="memo" onclick="setSec('memo')">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.4 3H6.5A2.5 2.5 0 0 0 4 5.5v13A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V7.6L15.4 3Z"/><path d="M14.5 3v5h5"/><path d="M8.5 12.5h7M8.5 16.5h4.5"/></svg>
+      메모</button>
   </nav>
 
-  <section id="secRoom">
-    <div class="card">
-      <div class="rooms" id="rooms"></div>
-      <div class="roominfo"><span id="roomName"></span><span id="roomCount"></span></div>
-      <div class="msgs" id="msgs"></div>
-      <div class="composer">
-        <div class="sender">발신 <span class="who">👑 <span id="ownerChip">김경진</span> (사장님)</span>
-          <button class="btn" style="margin-left:auto;" onclick="clearRoom()">방 비우기</button>
+  <main class="main">
+    <section id="secRoom" class="sec">
+      <div class="chat">
+        <div class="rooms" id="rooms"></div>
+        <div class="roommeta">
+          <span class="rm-name" id="roomName"></span>
+          <span class="rm-info" id="roomCount"></span>
+          <button class="ghost-btn" onclick="clearRoom()">비우기</button>
         </div>
-        <div class="mentions" id="mentions"></div>
-        <div class="inputrow">
-          <textarea id="input" rows="2" placeholder="지시를 적으세요. @로 이름을 부르면 접수 확인이 붙습니다. (Enter 전송 / Shift+Enter 줄바꿈)"></textarea>
-          <button class="send" id="sendBtn" onclick="send()">보내기</button>
+        <div class="msgs" id="msgs"></div>
+        <div class="composer">
+          <div class="mentions" id="mentions"></div>
+          <div class="inputrow">
+            <textarea id="input" rows="1" placeholder="지시를 적어 주세요"></textarea>
+            <button class="send" id="sendBtn" onclick="send()" aria-label="보내기">
+              <svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5.5 11.5 6.5-6.5 6.5 6.5"/></svg>
+            </button>
+          </div>
+          <div class="foot-note"><span id="ownerChip">김경진</span> (사장님) 발신 · Enter 전송</div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section id="secWork" hidden>
-    <div class="card">
-      <h4>📦 주문함 현황 <span class="hint" id="summaryWhen"></span></h4>
-      <div class="kpis">
-        <div class="kpi paid"><div class="v" id="kpiPaid">-</div><div class="l">신규결제(대기)</div></div>
-        <div class="kpi prep"><div class="v" id="kpiPrep">-</div><div class="l">배송준비</div></div>
-        <div class="kpi unmapped"><div class="v" id="kpiUnmapped">-</div><div class="l">미매칭</div></div>
+    <section id="secWork" class="sec scroll" hidden>
+      <div class="card">
+        <div class="card-hd">
+          <svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8.2 12 3 3 8.2v7.6L12 21l9-5.2V8.2Z"/><path d="M3 8.2 12 13.4l9-5.2"/><path d="M12 13.4V21"/></svg>
+          <h4>주문함 현황</h4>
+          <span class="hint" id="summaryWhen"></span>
+        </div>
+        <div class="kpis">
+          <div class="kpi paid"><div class="l"><i></i>신규결제</div><div class="v" id="kpiPaid">-</div></div>
+          <div class="kpi prep"><div class="l"><i></i>배송준비</div><div class="v" id="kpiPrep">-</div></div>
+          <div class="kpi unmapped"><div class="l"><i></i>미매칭</div><div class="v" id="kpiUnmapped">-</div></div>
+        </div>
+        <div class="kpi-more" id="summaryMore"></div>
+        <div class="row" style="margin-top:12px;">
+          <button class="btn quiet" onclick="openSettings()">현황 가져오기 / 직접 입력</button>
+        </div>
       </div>
-      <div class="sub2" id="summaryMore"></div>
-      <div class="row" style="margin-top:9px;">
-        <button class="btn solid" onclick="openSettings()">🔄 허팜에서 가져오기 / 직접 입력</button>
-      </div>
-      <div class="help" style="font-size:10.5px;color:var(--muted);line-height:1.6;margin-top:6px;">
-        브라우저는 허팜 서버의 직접 호출을 막는 경우가 많습니다(보안 정책). 그때는 PC 주문함에서 내보낸
-        <b>요약 파일</b>을 가져오거나, 설정에서 건수를 직접 적어 두세요.
-      </div>
-    </div>
-    <div class="card">
-      <h4>🗓 정기 스케줄 <span class="hint">평일 기준 · 주말은 정기 발주 없음</span></h4>
-      <div id="workSched"></div>
-    </div>
-    <div class="card">
-      <h4>✅ 할 일 <span class="hint" id="todoCount"></span></h4>
-      <div id="todos"></div>
-      <div class="add">
-        <input id="todoInput" placeholder="할 일을 적고 Enter">
-        <button onclick="addTodo()">추가</button>
-      </div>
-      <div style="text-align:right;margin-top:6px;"><button class="link" onclick="clearDone()">완료한 항목 지우기</button></div>
-    </div>
-  </section>
 
-  <section id="secStaff" hidden>
-    <div class="card"><h4>👑 비서현황</h4><div id="people"></div></div>
-    <div class="card"><h4>🗓 정기 스케줄 <span class="hint">토·일은 쉽니다</span></h4><div id="staffSched"></div></div>
-    <div class="card">
-      <h4>📌 안내</h4>
-      <div class="sub2">
-        · 이 화면은 서버 없이 브라우저에만 저장됩니다 (외부로 보내지 않음).<br>
-        · 이름을 불러도 <b>접수 확인만</b> 남습니다. 실제 발주·발송은 허팜이 주문함에서 진행합니다.<br>
-        · PC 주문함 비서실과 내용을 맞추려면 <b>내보내기/가져오기</b>를 쓰세요.
+      <div class="card">
+        <div class="card-hd">
+          <svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+          <h4>정기 스케줄</h4>
+          <span class="hint">평일 · 주말은 정기 발주 없음</span>
+        </div>
+        <div class="tl" id="workSched"></div>
       </div>
-    </div>
-  </section>
 
-  <section id="secMemo" hidden>
-    <div class="card">
-      <h4>📝 새 메모</h4>
-      <textarea id="memoInput" placeholder="PC·휴대폰 어디서 적어도 이 브라우저에 저장됩니다."></textarea>
-      <div class="row" style="justify-content:flex-end;margin-top:7px;">
-        <button class="btn" onclick="exportJson()">⬇ 내보내기(JSON)</button>
-        <button class="btn" onclick="document.getElementById('importFile').click()">⬆ 가져오기</button>
-        <button class="send" style="padding:8px 14px;" onclick="addMemo()">저장</button>
+      <div class="card">
+        <div class="card-hd">
+          <svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.5 12.5 5 5L20 6.5"/></svg>
+          <h4>할 일</h4>
+          <span class="hint" id="todoCount"></span>
+        </div>
+        <div id="todos"></div>
+        <div class="addrow">
+          <input id="todoInput" placeholder="할 일을 적고 Enter">
+          <button onclick="addTodo()">추가</button>
+        </div>
+        <div style="text-align:right;margin-top:6px;"><button class="link del" onclick="clearDone()">완료한 항목 지우기</button></div>
       </div>
-      <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importJson(this)">
-    </div>
-    <div id="memos"></div>
-  </section>
+    </section>
+
+    <section id="secStaff" class="sec scroll" hidden>
+      <div class="card">
+        <div class="card-hd">
+          <svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1.6a4 4 0 0 0-4-4H6.5a4 4 0 0 0-4 4V20"/><circle cx="9.2" cy="7.6" r="3.6"/><path d="M21.5 20v-1.6a4 4 0 0 0-3-3.86M16.6 4.2a3.6 3.6 0 0 1 0 6.9"/></svg>
+          <h4>비서현황</h4>
+        </div>
+        <div id="people"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd">
+          <svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+          <h4>정기 스케줄</h4>
+          <span class="hint">토·일은 쉽니다</span>
+        </div>
+        <div class="tl" id="staffSched"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd">
+          <svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.1"/></svg>
+          <h4>이 비서실에서 하는 일</h4>
+        </div>
+        <ul class="bullets">
+          <li>이 화면은 서버 없이 브라우저에만 저장됩니다 (외부로 보내지 않음).</li>
+          <li>이름을 불러도 <b>접수 확인만</b> 남습니다. 실제 발주·발송은 허팜이 주문함에서 진행합니다.</li>
+          <li>PC 주문함 비서실과 내용을 맞추려면 <b>내보내기/가져오기</b>를 쓰세요.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="secMemo" class="sec scroll" hidden>
+      <div class="card">
+        <div class="card-hd">
+          <svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h8.5"/><path d="M16.6 3.7a2.1 2.1 0 0 1 3 3L7.4 19 3.5 20l1-3.9L16.6 3.7Z"/></svg>
+          <h4>새 메모</h4>
+        </div>
+        <textarea id="memoInput" placeholder="PC·휴대폰 어디서 적어도 이 브라우저에 저장됩니다."></textarea>
+        <div class="row" style="justify-content:flex-end;margin-top:10px;">
+          <button class="btn" onclick="exportJson()">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M5 20h14"/></svg>
+            내보내기</button>
+          <button class="btn" onclick="document.getElementById('importFile').click()">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V5"/><path d="m7.5 9.5 4.5-4.5 4.5 4.5"/><path d="M5 20h14"/></svg>
+            가져오기</button>
+          <button class="send" style="width:auto;height:auto;padding:9px 16px;font-size:12.5px;font-weight:600;border-radius:10px;" onclick="addMemo()">저장</button>
+        </div>
+        <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importJson(this)">
+      </div>
+      <div id="memos"></div>
+    </section>
+  </main>
 </div>
 
-<div class="modal-bg" id="settingsModal">
-  <div class="modal">
-    <h3>⚙ 설정</h3>
+<div class="sheet-bg" id="settingsModal">
+  <div class="sheet">
+    <div class="grip"></div>
+    <div class="sheet-hd">
+      <h3>설정</h3>
+      <button class="icon-btn" style="margin-left:auto;width:32px;height:32px;border:0;background:var(--card2);" onclick="closeSettings()" aria-label="닫기">
+        <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
 
     <label>사장님 표시 이름</label>
     <input type="text" id="setOwner" placeholder="예: 김경진">
 
-    <label>주문 현황 직접 입력 (PC 주문함을 못 열 때)</label>
-    <div class="row">
-      <input type="number" id="setPaid" placeholder="신규결제" style="width:31%;">
-      <input type="number" id="setPrep" placeholder="배송준비" style="width:31%;">
-      <input type="number" id="setUnmapped" placeholder="미매칭" style="width:31%;">
+    <label>주문 현황 직접 입력</label>
+    <div class="grid3">
+      <input type="number" id="setPaid" placeholder="신규결제">
+      <input type="number" id="setPrep" placeholder="배송준비">
+      <input type="number" id="setUnmapped" placeholder="미매칭">
     </div>
-    <div class="help">적어 두면 작업실 카드에 그 숫자가 표시됩니다(마지막 입력 시각 함께 저장).</div>
+    <p class="help">적어 두면 작업실 카드에 그 숫자가 표시됩니다 (마지막 입력 시각도 함께 저장).</p>
 
     <label>허팜 API 주소 (선택)</label>
     <input type="text" id="setApiBase" placeholder="예: https://주문함-서버-주소" autocomplete="off">
     <label>허팜 API 키 (선택 · 이 브라우저에만 저장)</label>
     <input type="password" id="setApiKey" placeholder="API 키" autocomplete="off">
-    <div class="help">
-      허팜 서버가 브라우저 호출(CORS)을 허용할 때만 자동으로 읽힙니다. 막히면 직접 입력이나 파일 가져오기를 쓰세요.
-      키는 이 브라우저 밖으로 나가지 않습니다.
-    </div>
-    <div class="row" style="margin-top:8px;">
-      <button class="btn solid" onclick="syncOrders()">🔄 지금 허팜에서 가져오기</button>
-      <button class="btn" onclick="importSummaryFile()">📄 PC 내보내기 파일 가져오기</button>
+    <p class="help">허팜 서버가 브라우저 호출(CORS)을 허용할 때만 자동으로 읽힙니다. 막히면 직접 입력이나 파일 가져오기를 쓰세요.</p>
+    <div class="row" style="margin-top:10px;">
+      <button class="btn" onclick="syncOrders()">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5A8 8 0 1 0 18 17"/><path d="M20 5v6h-6"/></svg>
+        지금 허팜에서 가져오기</button>
+      <button class="btn" onclick="importSummaryFile()">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5"/></svg>
+        PC 내보내기 파일 가져오기</button>
       <input type="file" id="summaryFile" accept=".json,application/json" style="display:none" onchange="importSummary(this)">
     </div>
 
-    <div class="row" style="justify-content:space-between;margin-top:16px;">
-      <button class="link del" onclick="resetAll()">전체 초기화</button>
-      <span>
+    <div class="sheet-note">
+      <b>저장 방식</b> — 이 화면의 내용은 이 브라우저(localStorage)에만 저장되고 서버로 보내지 않습니다.
+      기기마다 따로 저장되니 <b>메모 → 내보내기(JSON)</b>로 파일을 받아 다른 기기에서 <b>가져오기</b> 하세요.
+      PC 주문함과 같은 대화를 보려면 PC의 <b>비서실 → 메모 → 내보내기(JSON)</b> 파일을 가져오면 됩니다.
+    </div>
+
+    <div class="sheet-foot">
+      <button class="btn danger" onclick="resetAll()">전체 초기화</button>
+      <span class="row">
         <button class="btn" onclick="closeSettings()">닫기</button>
-        <button class="btn solid" onclick="saveSettings()">저장</button>
+        <button class="btn primary" onclick="saveSettings()">저장</button>
       </span>
     </div>
   </div>
@@ -340,19 +615,19 @@
 /* ============================ 데이터 ============================ */
 const KEY = "heofarm_office_v1";
 const ROOMS = [
-  { name: "대회의실", emoji: "🏛", members: 3, memo: "사장님·허팜이·경진2 모두" },
-  { name: "지휘실", emoji: "🎯", members: 2, memo: "사장님·허팜이 지시 하달" },
-  { name: "라운지", emoji: "☕", members: 3, memo: "아이디어·잡담" }
+  { name: "대회의실", icon: "users", members: 3, memo: "사장님·허팜이·경진2 모두" },
+  { name: "지휘실", icon: "target", members: 2, memo: "사장님·허팜이 지시 하달" },
+  { name: "라운지", icon: "coffee", members: 3, memo: "아이디어·잡담" }
 ];
 const PEOPLE = [
-  { key: "owner", name: "김경진", call: "사장님", emoji: "👑", role: "사장님", desc: "최종 결정·승인", tone: "owner" },
-  { key: "heofarm", name: "허팜이", call: "허팜이", emoji: "ㅎ", role: "대장 / 본폰", desc: "발주·송장·API·메일·기획/검증", tone: "" },
-  { key: "gyeongjin2", name: "경진2", call: "경진2", emoji: "📱", role: "부대장 / 업무폰 @gyeongjin24", desc: "스레드·쿠팡 파트너스·소싱 실행", tone: "helper" }
+  { key: "owner", name: "김경진", call: "사장님", role: "사장님", desc: "최종 결정·승인", tone: "owner" },
+  { key: "heofarm", name: "허팜이", call: "허팜이", role: "대장 / 본폰", desc: "발주·송장·API·메일·기획/검증", mark: "ㅎ", tone: "" },
+  { key: "gyeongjin2", name: "경진2", call: "경진2", role: "부대장 / 업무폰", desc: "스레드·쿠팡 파트너스·소싱 실행", mark: "2", tone: "helper" }
 ];
 const MENTIONS = ["@전체", "@허팜이(대장)", "@부대장(경진2)"];
 const AUTO_REPLY = {
-  "허팜이": "네, 사장님! 접수했습니다. 발주·송장·메일 쪽이면 바로 착수해서 결과로 보고드리겠습니다. 😊",
-  "경진2": "네, 사장님! 접수했습니다. 스레드·파트너스·소싱 쪽이면 부대장이 바로 움직이겠습니다. 📱"
+  "허팜이": "네, 사장님! 접수했습니다. 발주·송장·메일 쪽이면 바로 착수해서 결과로 보고드리겠습니다.",
+  "경진2": "네, 사장님! 접수했습니다. 스레드·파트너스·소싱 쪽이면 부대장이 바로 움직이겠습니다."
 };
 const SCHEDULES = [
   { time: "07:30", name: "고흥 집계", who: "허팜이", days: [0,1,2,3,4], desc: "고흥유럽샐러드 오늘 주문 수량 집계" },
@@ -362,6 +637,21 @@ const SCHEDULES = [
   { time: "10:00", name: "일로움 광고 점검", who: "허팜이", days: [0,3], desc: "쿠팡 광고 효율 13% 기준 점검" }
 ];
 const WD = ["월", "화", "수", "목", "금", "토", "일"];
+
+/* 아이콘 (인라인 SVG) */
+const ICONS = {
+  users: '<path d="M16 20v-1.6a4 4 0 0 0-4-4H6.5a4 4 0 0 0-4 4V20"/><circle cx="9.2" cy="7.6" r="3.6"/><path d="M21.5 20v-1.6a4 4 0 0 0-3-3.86M16.6 4.2a3.6 3.6 0 0 1 0 6.9"/>',
+  target: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r=".6" fill="currentColor"/>',
+  coffee: '<path d="M4 8.5h11v5.6a4.6 4.6 0 0 1-4.6 4.6H8.6A4.6 4.6 0 0 1 4 14.1V8.5Z"/><path d="M15 9.6h1.9a2.6 2.6 0 0 1 0 5.2H15"/><path d="M3.4 21h13"/>',
+  chat: '<path d="M21 14.5a7.5 7.5 0 0 1-7.5 7.5 7.4 7.4 0 0 1-3.3-.8L4 22.5l1.3-5.9A7.5 7.5 0 1 1 21 14.5Z"/>',
+  crown: '<path d="M3 8.5 6.4 17h11.2L21 8.5l-4.6 3L12 5 7.6 11.5 3 8.5Z"/><path d="M6.4 20h11.2"/>',
+  check: '<path d="m5 12.5 4.4 4.4L19 6.5"/>',
+  clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'
+};
+function ic(name, size) {
+  const s = size || 18;
+  return '<svg class="ic" width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONS[name] || '') + '</svg>';
+}
 
 function freshState() {
   return {
@@ -409,17 +699,22 @@ function esc(s) {
 function nowStr() {
   const d = new Date();
   const p = n => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes()) + ":" + p(d.getSeconds());
 }
 function uid(p) { return p + Math.random().toString(36).slice(2, 10); }
 function toast(msg) {
   const el = document.getElementById("toast");
   el.textContent = msg;
-  el.style.display = "block";
+  el.classList.add("show");
   clearTimeout(window.__toastT);
-  window.__toastT = setTimeout(() => { el.style.display = "none"; }, 3000);
+  window.__toastT = setTimeout(() => el.classList.remove("show"), 2600);
 }
-function personByCall(call) { return PEOPLE.find(p => p.call === call) || { emoji: "💬", tone: "", role: "" }; }
+function personByCall(call) { return PEOPLE.find(p => p.call === call) || { name: "비서", mark: "?", tone: "", role: "" }; }
+function avatarHtml(p) {
+  if (p.key === "owner" || p.tone === "owner") return '<div class="av owner">' + ic("crown", 15) + "</div>";
+  const mark = p.mark || String(p.name || "·").slice(0, 1);
+  return '<div class="av ' + (p.tone || "") + '">' + esc(mark) + "</div>";
+}
 function parseMentions(text) {
   const out = [];
   const t = String(text || "");
@@ -427,6 +722,13 @@ function parseMentions(text) {
   if (t.includes("@허팜이")) out.push("허팜이");
   if (t.includes("@경진2") || t.includes("@부대장") || t.includes("@gyeongjin24")) out.push("경진2");
   return [...new Set(out)];
+}
+function toggleStrip() {
+  const more = document.getElementById("stripMore");
+  const btn = document.getElementById("stripBtn");
+  const open = more.hidden;
+  more.hidden = !open;
+  btn.textContent = open ? "접기" : "자세히";
 }
 
 /* ============================ 스케줄 ============================ */
@@ -468,10 +770,12 @@ function schedHtml() {
   return scheduleRows().map(x => {
     const cls = x.todayState === "done" ? "done" : x.todayState === "waiting" ? "wait" : "off";
     const badge = x.todayState === "done" ? "지남" : x.todayState === "waiting" ? "예정" : "쉼";
-    return `<div class="sched"><span class="time">${esc(x.time)}</span>
-      <div style="min-width:0"><div class="nm">${esc(x.name)} <span class="ds">${esc(x.who)} · ${esc(x.daysLabel)}</span></div>
-      <div class="ds">${esc(x.todayLabel)} · 다음 ${esc(String(x.nextLabel || "").replace(/^오늘 /, ""))}</div></div>
-      <span class="badge ${cls}">${badge}</span></div>`;
+    return '<div class="tl-row ' + cls + '">'
+      + '<div class="tl-time">' + esc(x.time) + "</div>"
+      + '<div class="tl-rail"><span class="tl-dot"></span></div>'
+      + '<div><div class="tl-name">' + esc(x.name) + '<span class="tl-who">' + esc(x.who) + " · " + esc(x.daysLabel) + "</span></div>"
+      + '<div class="tl-sub">' + esc(x.todayLabel) + " · 다음 " + esc(String(x.nextLabel || "").replace(/^오늘 /, "")) + "</div></div>"
+      + '<span class="badge ' + cls + '">' + badge + "</span></div>";
   }).join("");
 }
 
@@ -492,7 +796,7 @@ function renderAll() {
     const el = document.getElementById(id);
     if (el) el.hidden = (k !== SEC);
   });
-  document.getElementById("ownerChip").textContent = S.settings.owner || "사장님";
+  document.getElementById("ownerChip").textContent = S.settings.owner || "김경진";
   if (SEC === "room") renderRoom();
   if (SEC === "work") renderWork();
   if (SEC === "staff") renderStaff();
@@ -501,30 +805,31 @@ function renderAll() {
 
 function renderRoom() {
   document.getElementById("rooms").innerHTML = ROOMS.map(r =>
-    `<button class="room ${r.name === S.activeRoom ? "active" : ""}" onclick="setRoom('${esc(r.name)}')">${r.emoji} ${esc(r.name)}</button>`
+    '<button class="room ' + (r.name === S.activeRoom ? "active" : "") + '" onclick="setRoom(\'' + esc(r.name) + '\')">'
+    + ic(r.icon, 15) + "<span>" + esc(r.name) + "</span></button>"
   ).join("");
   const room = ROOMS.find(r => r.name === S.activeRoom) || ROOMS[0];
-  document.getElementById("roomName").textContent = `${room.emoji} ${room.name}`;
-  document.getElementById("roomCount").textContent = `· ON ${room.members}명 · ${room.memo}`;
-  document.getElementById("mentions").innerHTML = MENTIONS.map(m =>
-    `<button class="mention" onclick="mention('${esc(m)}')">${esc(m)}</button>`).join("");
+  document.getElementById("roomName").textContent = room.name;
+  document.getElementById("roomCount").textContent = "ON " + room.members + "명 · " + room.memo;
+  document.getElementById("mentions").innerHTML = '<span class="lbl">발신</span>'
+    + MENTIONS.map(m => '<button class="mention" onclick="mention(\'' + esc(m) + '\')">' + esc(m) + "</button>").join("");
 
   const msgs = (S.rooms[S.activeRoom] || []);
   const box = document.getElementById("msgs");
-  const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+  const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 90;
   if (!msgs.length) {
-    box.innerHTML = `<div class="empty">아직 지시가 없습니다.<br>아래에 적고 <b>@허팜이(대장)</b> 을 누른 뒤 보내면 접수 확인이 붙습니다.</div>`;
+    box.innerHTML = '<div class="empty">' + ic("chat", 26) + "아직 지시가 없습니다.<br>아래에 적고 <b>@허팜이(대장)</b>을 누른 뒤 보내면 접수 확인이 붙습니다.</div>";
   } else {
     box.innerHTML = msgs.map(m => {
       const p = personByCall(m.author);
       const me = m.author === "사장님";
       const time = (m.at || "").slice(11, 16);
-      const auto = m.auto ? `<span class="auto">자동 접수확인</span>` : "";
+      const auto = m.auto ? '<span class="ack">' + ic("check", 10) + "자동 접수확인</span>" : "";
       const role = (!me && p.role) ? " · " + esc(p.role) : "";
-      return `<div class="msg ${me ? "me" : ""}">
-        <div class="av ${p.tone || ""}">${p.emoji || "💬"}</div>
-        <div class="body"><div class="meta"><b>${esc(m.author)}</b>${role} · ${time}${auto}</div>
-        <div class="bubble">${esc(m.text)}</div></div></div>`;
+      return '<div class="msg ' + (me ? "me" : "") + '">'
+        + avatarHtml(p)
+        + '<div class="body"><div class="meta"><b>' + esc(m.author) + "</b>" + role + " · " + time + auto + "</div>"
+        + '<div class="bubble">' + esc(m.text) + "</div></div></div>";
     }).join("");
   }
   if (nearBottom) box.scrollTop = box.scrollHeight;
@@ -542,6 +847,12 @@ function mention(text) {
   ta.value = before + add + ta.value.slice(end);
   ta.focus();
   ta.selectionStart = ta.selectionEnd = start + add.length;
+  autoGrow(ta);
+}
+
+function autoGrow(ta) {
+  ta.style.height = "auto";
+  ta.style.height = Math.min(ta.scrollHeight, 120) + "px";
 }
 
 function send() {
@@ -559,13 +870,14 @@ function send() {
   S.rooms[room] = S.rooms[room].concat(replies).slice(-400);
   save();
   ta.value = "";
+  autoGrow(ta);
   renderRoom();
   if (replies.length) toast("접수 확인: " + replies.map(r => r.author).join(", "));
   ta.focus();
 }
 
 function clearRoom() {
-  if (!confirm(`'${S.activeRoom}' 대화를 모두 지울까요? 되돌릴 수 없습니다.`)) return;
+  if (!confirm("'" + S.activeRoom + "' 대화를 모두 지울까요? 되돌릴 수 없습니다.")) return;
   S.rooms[S.activeRoom] = [];
   save();
   renderRoom();
@@ -579,9 +891,9 @@ function renderWork() {
   document.getElementById("kpiUnmapped").textContent = (sm.unmapped === null || sm.unmapped === undefined) ? "-" : sm.unmapped;
   document.getElementById("summaryWhen").textContent = sm.at ? (sm.source || "입력") + " " + String(sm.at).slice(5, 16) : "아직 없음";
   const bits = [];
-  if (sm.purchase_pending !== null && sm.purchase_pending !== undefined) bits.push(`발주대기 ${sm.purchase_pending}건`);
-  if (sm.shipping !== null && sm.shipping !== undefined) bits.push(`발송중 ${sm.shipping}건`);
-  if (!bits.length) bits.push(sm.source ? `${sm.source} 기준 · 허팜에서 가져오면 자동 갱신` : "설정에서 주문 현황을 가져오거나 직접 입력해 두세요.");
+  if (sm.purchase_pending !== null && sm.purchase_pending !== undefined) bits.push("발주대기 " + sm.purchase_pending + "건");
+  if (sm.shipping !== null && sm.shipping !== undefined) bits.push("발송중 " + sm.shipping + "건");
+  if (!bits.length) bits.push(sm.source ? sm.source + " 기준 · 허팜에서 가져오면 자동 갱신" : "설정에서 주문 현황을 가져오거나 직접 입력해 두세요.");
   document.getElementById("summaryMore").textContent = bits.join(" · ");
   document.getElementById("workSched").innerHTML = schedHtml();
   renderTodos();
@@ -590,19 +902,20 @@ function renderWork() {
 function renderTodos() {
   const todos = S.todos || [];
   const open = todos.filter(t => !t.done).length;
-  document.getElementById("todoCount").textContent = `${open}개 남음 / 전체 ${todos.length}`;
+  document.getElementById("todoCount").textContent = open + "개 남음 / 전체 " + todos.length;
   const box = document.getElementById("todos");
-  if (!todos.length) { box.innerHTML = `<div class="empty">할 일이 없습니다. 아래에 적어 두세요.</div>`; return; }
+  if (!todos.length) { box.innerHTML = '<div class="empty" style="padding:14px 6px;">할 일이 없습니다. 아래에 적어 두세요.</div>'; return; }
   box.innerHTML = todos.map(t => {
     if (editingTodo === t.id) {
-      return `<div class="todo"><input class="editbox" id="todoEdit" value="${esc(t.text)}"
-        onkeydown="if(event.key==='Enter'){saveTodoText('${esc(t.id)}')} if(event.key==='Escape'){cancelEdit()}">
-        <button class="btn" onclick="saveTodoText('${esc(t.id)}')">저장</button></div>`;
+      return '<div class="todo"><input class="editbox" id="todoEdit" value="' + esc(t.text) + '"'
+        + ' onkeydown="if(event.key===\'Enter\'){saveTodoText(\'' + esc(t.id) + '\')} if(event.key===\'Escape\'){cancelEdit()}">'
+        + '<button class="link" onclick="saveTodoText(\'' + esc(t.id) + '\')">저장</button></div>';
     }
-    return `<div class="todo ${t.done ? "done" : ""}">
-      <input type="checkbox" ${t.done ? "checked" : ""} onchange="toggleTodo('${esc(t.id)}', this.checked)">
-      <span class="tx" onclick="editTodo('${esc(t.id)}')">${esc(t.text)}</span>
-      <button class="link del" onclick="deleteTodo('${esc(t.id)}')">✕</button></div>`;
+    return '<div class="todo ' + (t.done ? "done" : "") + '">'
+      + '<input type="checkbox" ' + (t.done ? "checked" : "") + ' onchange="toggleTodo(\'' + esc(t.id) + '\', this.checked)">'
+      + '<span class="tx" onclick="editTodo(\'' + esc(t.id) + '\')">' + esc(t.text) + "</span>"
+      + '<button class="x" title="지우기" onclick="deleteTodo(\'' + esc(t.id) + '\')">'
+      + '<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>';
   }).join("");
   const el = document.getElementById("todoEdit");
   if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
@@ -643,17 +956,17 @@ function clearDone() {
   S.todos = S.todos.filter(t => !t.done);
   save();
   renderTodos();
-  toast(`완료 ${before - S.todos.length}건 지움`);
+  toast("완료 " + (before - S.todos.length) + "건 지움");
 }
 function cancelEdit() { editingTodo = ""; editingMemo = ""; renderAll(); }
 
 function renderStaff() {
   document.getElementById("people").innerHTML = PEOPLE.map(p => {
-    const label = p.tone === "owner" ? `${esc(p.name)} <span>(${esc(p.call)})</span>` : esc(p.name);
-    const role = p.tone === "owner" ? "" : `<div class="rl">${esc(p.role)}</div>`;
-    return `<div class="person"><div class="av ${p.tone}">${p.emoji}</div>
-      <div style="min-width:0"><div class="nm">${label}</div>${role}
-      <div class="ds">${esc(p.desc)}</div></div></div>`;
+    const label = p.tone === "owner" ? esc(p.name) + ' <span>(' + esc(p.call) + ")</span>" : esc(p.name);
+    const role = p.tone === "owner" ? "" : '<div class="rl">' + esc(p.role) + "</div>";
+    return '<div class="person">' + avatarHtml(p)
+      + '<div style="min-width:0"><div class="nm">' + label + "</div>" + role
+      + '<div class="ds">' + esc(p.desc) + "</div></div></div>";
   }).join("");
   document.getElementById("staffSched").innerHTML = schedHtml();
 }
@@ -662,20 +975,21 @@ function renderMemos() {
   const memos = S.memos || [];
   const box = document.getElementById("memos");
   if (!memos.length) {
-    box.innerHTML = `<div class="card"><div class="empty">메모가 없습니다. 위에서 첫 메모를 적어 보세요.</div></div>`;
+    box.innerHTML = '<div class="card"><div class="empty" style="padding:10px;">메모가 없습니다. 위에서 첫 메모를 적어 보세요.</div></div>';
     return;
   }
   box.innerHTML = memos.map(m => {
     if (editingMemo === m.id) {
-      return `<div class="memo"><textarea id="memoEdit" rows="5">${esc(m.text)}</textarea>
-        <div class="ft"><button class="link" onclick="saveMemo('${esc(m.id)}')">저장</button>
-        <button class="link" onclick="cancelEdit()">취소</button></div></div>`;
+      return '<div class="memo"><textarea id="memoEdit" rows="5">' + esc(m.text) + "</textarea>"
+        + '<div class="ft"><span style="margin-left:auto"></span>'
+        + '<button class="link" onclick="cancelEdit()">취소</button>'
+        + '<button class="link" onclick="saveMemo(\'' + esc(m.id) + '\')">저장</button></div></div>';
     }
     const when = String(m.updatedAt || m.at || "").slice(0, 16);
-    return `<div class="memo"><div class="tx">${esc(m.text)}</div>
-      <div class="ft"><span>${esc(when)}${m.updatedAt ? " 수정" : ""}</span><span style="margin-left:auto"></span>
-      <button class="link" onclick="editMemo('${esc(m.id)}')">편집</button>
-      <button class="link del" onclick="deleteMemo('${esc(m.id)}')">삭제</button></div></div>`;
+    return '<div class="memo"><div class="tx">' + esc(m.text) + "</div>"
+      + '<div class="ft"><span>' + esc(when) + (m.updatedAt ? " 수정" : "") + "</span><span style=\"margin-left:auto\"></span>"
+      + '<button class="link" onclick="editMemo(\'' + esc(m.id) + '\')">편집</button>'
+      + '<button class="link del" onclick="deleteMemo(\'' + esc(m.id) + '\')">삭제</button></div></div>';
   }).join("");
   const el = document.getElementById("memoEdit");
   if (el) el.focus();
@@ -767,7 +1081,7 @@ async function syncOrders() {
     if (!Array.isArray(orders) || !orders.length) throw new Error("주문 목록이 비어 있습니다");
     applyOrders(orders, "허팜 API");
     closeSettings();
-    toast(`주문 ${orders.length}건을 불러왔습니다.`);
+    toast("주문 " + orders.length + "건을 불러왔습니다.");
   } catch (e) {
     toast("허팜 직접 호출이 막혔습니다(브라우저 보안/CORS). PC 내보내기 파일을 가져오거나 직접 입력해 주세요.");
   }
@@ -791,7 +1105,6 @@ function importSummary(input) {
       S.summary.shipping = numOrNull(sm.shipping);
       S.summary.source = "PC 내보내기";
       S.summary.at = nowStr();
-      // PC 비서실에서 내보낸 파일이면 대화·할 일·메모도 함께 가져온다
       let merged = false;
       if (data.state && data.state.rooms) {
         if (confirm("PC 비서실의 대화·할 일·메모도 함께 가져올까요? 지금 이 브라우저 내용은 덮어써집니다.")) {
@@ -821,7 +1134,7 @@ function exportJson() {
   const d = new Date();
   const p = n => String(n).padStart(2, "0");
   a.href = URL.createObjectURL(blob);
-  a.download = `비서실_${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}.json`;
+  a.download = "비서실_" + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + "_" + p(d.getHours()) + p(d.getMinutes()) + ".json";
   document.body.appendChild(a);
   a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
@@ -866,6 +1179,7 @@ function resetAll() {
 document.getElementById("input").addEventListener("keydown", e => {
   if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); }
 });
+document.getElementById("input").addEventListener("input", e => autoGrow(e.target));
 document.getElementById("todoInput").addEventListener("keydown", e => {
   if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); addTodo(); }
 });
