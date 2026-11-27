@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#A9682F">
+<meta name="description" content="허니스윗팜 비서실 — 지휘실·작업실·비서현황·메모">
+<title>👑 허니스윗팜 비서실</title>
+<style>
+  :root {
+    --bg: #FBF6EE; --panel: #FFFDF8; --panel2: #FFF9F0; --border: #EDDFC9;
+    --text: #463225; --muted: #9A8570; --accent: #A9682F; --accent-bg: #F3E3CE;
+    --green: #2C8A57; --green-bg: #E8F5EC; --red: #BF5348;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--text); font-size: 13px;
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  }
+  button, input, textarea, select { font-family: inherit; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 14px 14px 48px; }
+
+  .head {
+    display: flex; align-items: center; gap: 10px; background: var(--panel);
+    border: 1px solid var(--border); border-radius: 18px; padding: 11px 13px;
+    box-shadow: 0 2px 12px rgba(130,90,45,.07);
+  }
+  .logo {
+    width: 42px; height: 42px; border-radius: 50%; flex: none; font-size: 21px;
+    background: linear-gradient(#F7E2C4, #E9C698); border: 1px solid #E2C49B;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .title { font-size: 16.5px; font-weight: 800; letter-spacing: -.3px; }
+  .sub { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+  .dotg { width: 7px; height: 7px; border-radius: 50%; background: #3FA36B; display: inline-block; }
+  .live {
+    margin-left: auto; font-size: 11px; font-weight: 800; color: var(--green); background: var(--green-bg);
+    border: 1px solid #CBE7D6; border-radius: 999px; padding: 5px 10px; white-space: nowrap;
+    cursor: pointer;
+  }
+  .tabs {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin: 10px 0; padding: 5px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
+  }
+  .tab {
+    border: 0; background: transparent; color: #8C7761; padding: 8px 2px; border-radius: 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 11.5px; font-weight: 800; cursor: pointer;
+  }
+  .tab .ic { font-size: 17px; }
+  .tab.active { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(150,90,40,.22); }
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 12px;
+    margin-bottom: 10px; box-shadow: 0 1px 6px rgba(130,90,45,.04);
+  }
+  .card h4 { margin: 0 0 8px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+  .card h4 .hint { margin-left: auto; font-size: 10.5px; color: var(--muted); font-weight: 600; }
+
+  .note {
+    background: #FFF4E2; border: 1px solid #F0DFC4; border-radius: 13px; padding: 10px 11px;
+    font-size: 11.5px; color: #7A6551; margin: 10px 0; line-height: 1.6;
+  }
+  .note b { color: #7A4E23; }
+  .note code { background: var(--panel); border: 1px solid #EADCC7; border-radius: 6px; padding: 1px 5px; font-size: 11px; word-break: break-all; }
+
+  .rooms { display: flex; gap: 6px; flex-wrap: wrap; }
+  .room {
+    border: 1px solid #E7D6BE; background: var(--panel2); color: #7A6551; border-radius: 999px;
+    padding: 7px 12px; font-size: 12px; font-weight: 800; cursor: pointer;
+  }
+  .room.active { border-color: #E7A3A0; background: #FBEDEA; color: #A6534C; }
+  .roominfo { font-size: 11.5px; color: var(--muted); margin: 9px 2px 2px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .msgs { min-height: 200px; max-height: min(52vh, 460px); overflow-y: auto; padding: 4px 2px 2px; }
+  .msg { display: flex; gap: 7px; margin: 10px 0; align-items: flex-start; }
+  .msg.me { flex-direction: row-reverse; }
+  .av {
+    width: 30px; height: 30px; border-radius: 50%; flex: none; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid #EAD9C0; background: #FFF6E8;
+  }
+  .av.owner { background: #FBEDE7; border-color: #EFD3C9; }
+  .av.helper { background: #EAF2FA; border-color: #CFE0F0; }
+  .body { max-width: 80%; }
+  .meta { font-size: 10.5px; color: var(--muted); margin: 0 2px 3px; }
+  .msg.me .meta { text-align: right; }
+  .meta b { color: #6E5844; }
+  .bubble {
+    background: var(--panel); border: 1px solid #F0E3CE; border-radius: 14px; padding: 9px 11px;
+    font-size: 13px; line-height: 1.55; white-space: pre-wrap; word-break: break-word;
+  }
+  .msg.me .bubble { background: #FBE7E3; border-color: #F2D2CC; }
+  .auto { font-size: 9.5px; color: var(--muted); background: #F4EBDD; border-radius: 6px; padding: 1px 5px; margin-left: 4px; }
+
+  .composer { border-top: 1px dashed #EADCC7; padding-top: 9px; margin-top: 4px; }
+  .sender { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); margin-bottom: 7px; flex-wrap: wrap; }
+  .who {
+    display: inline-flex; align-items: center; gap: 4px; background: #FBEDE7; border: 1px solid #EFD3C9;
+    color: #8C5B48; border-radius: 999px; padding: 3px 9px; font-size: 11.5px; font-weight: 800;
+  }
+  .mentions { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 7px; }
+  .mention {
+    border: 1px dashed #DFC9AB; background: #FFF8EC; color: #8A6A47; border-radius: 999px;
+    padding: 5px 9px; font-size: 11px; font-weight: 800; cursor: pointer;
+  }
+  .inputrow { display: flex; gap: 7px; align-items: flex-end; }
+  .inputrow textarea {
+    flex: 1; min-height: 44px; max-height: 130px; resize: vertical; background: var(--panel);
+    border: 1px solid #E4D3B8; border-radius: 12px; padding: 10px; font-size: 13px; color: var(--text);
+  }
+  .send {
+    border: 0; background: var(--accent); color: #fff; border-radius: 12px; padding: 11px 15px;
+    font-size: 13px; font-weight: 800; cursor: pointer; white-space: nowrap;
+  }
+  .send:disabled { opacity: .5; }
+
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+  .kpi { background: var(--panel2); border: 1px solid #EADCC7; border-radius: 13px; padding: 10px; text-align: center; }
+  .kpi .v { font-size: 22px; font-weight: 900; letter-spacing: -1px; }
+  .kpi .l { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+  .kpi.paid .v { color: #C0762A; } .kpi.prep .v { color: var(--green); } .kpi.unmapped .v { color: var(--red); }
+  .sub2 { font-size: 11px; color: #8C7761; margin-top: 8px; line-height: 1.7; }
+
+  .sched { display: flex; align-items: center; gap: 8px; padding: 7px 2px; border-bottom: 1px dashed #F0E4D1; font-size: 12px; }
+  .sched:last-child { border-bottom: 0; }
+  .time { font-weight: 900; color: #8A5A2E; width: 44px; flex: none; }
+  .sched .nm { font-weight: 700; }
+  .sched .ds { font-size: 10.5px; color: var(--muted); }
+  .badge { margin-left: auto; font-size: 10px; font-weight: 800; border-radius: 999px; padding: 3px 8px; flex: none; }
+  .badge.done { background: #EFEAE1; color: var(--muted); }
+  .badge.wait { background: var(--green-bg); color: var(--green); }
+  .badge.off { background: #F5EEE3; color: #B09A80; }
+
+  .todo { display: flex; align-items: center; gap: 8px; padding: 8px 2px; border-bottom: 1px dashed #F0E4D1; }
+  .todo:last-child { border-bottom: 0; }
+  .todo input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); flex: none; }
+  .todo .tx { flex: 1; font-size: 12.5px; word-break: break-word; cursor: pointer; }
+  .todo.done .tx { text-decoration: line-through; color: #B09A80; }
+  .add { display: flex; gap: 6px; margin-top: 9px; }
+  .add input, .editbox {
+    flex: 1; width: 100%; background: var(--panel); border: 1px solid #E4D3B8; border-radius: 11px;
+    padding: 9px 10px; font-size: 12.5px; color: var(--text);
+  }
+  .add button {
+    border: 0; background: var(--accent); color: #fff; border-radius: 11px; padding: 0 13px;
+    font-size: 12.5px; font-weight: 800; cursor: pointer;
+  }
+  .person { display: flex; gap: 10px; align-items: flex-start; padding: 10px 2px; border-bottom: 1px dashed #F0E4D1; }
+  .person:last-child { border-bottom: 0; }
+  .person .nm { font-weight: 800; font-size: 13px; }
+  .person .nm span { font-weight: 600; color: var(--muted); }
+  .person .rl { font-size: 10.5px; color: var(--muted); }
+  .person .ds { font-size: 11.5px; color: #7A6551; margin-top: 2px; }
+
+  .memo { background: var(--panel2); border: 1px solid #EADCC7; border-radius: 13px; padding: 10px 11px; margin-bottom: 8px; }
+  .memo .tx { font-size: 12.5px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+  .memo .ft { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 10.5px; color: var(--muted); }
+  .memo textarea { width: 100%; min-height: 90px; background: var(--panel); border: 1px solid #E4D3B8; border-radius: 10px; padding: 9px; font-size: 12.5px; color: var(--text); }
+  #memoInput { width: 100%; min-height: 92px; resize: vertical; background: var(--panel); border: 1px solid #E4D3B8; border-radius: 12px; padding: 10px; font-size: 12.5px; color: var(--text); }
+
+  .btn {
+    border: 1px solid #E4D3B8; background: var(--panel); color: #8A6A47; border-radius: 8px;
+    padding: 5px 10px; font-size: 10.5px; font-weight: 800; cursor: pointer;
+  }
+  .btn.solid { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .link { border: 0; background: transparent; color: var(--accent); font-size: 11px; font-weight: 800; cursor: pointer; padding: 2px 4px; }
+  .link.del { color: var(--red); }
+  .empty { text-align: center; color: #B09A80; font-size: 12px; padding: 18px 6px; line-height: 1.7; }
+  .row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+  .modal-bg { position: fixed; inset: 0; background: rgba(60,40,25,.42); display: none; align-items: center; justify-content: center; z-index: 80; padding: 14px; }
+  .modal-bg.open { display: flex; }
+  .modal { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; width: 100%; max-width: 460px; padding: 15px; max-height: 88vh; overflow-y: auto; }
+  .modal h3 { margin: 0 0 10px; font-size: 15px; }
+  .modal label { display: block; font-size: 11.5px; color: var(--muted); margin: 10px 0 4px; font-weight: 700; }
+  .modal input[type="text"], .modal input[type="password"], .modal input[type="number"] {
+    width: 100%; background: var(--panel2); border: 1px solid #E4D3B8; border-radius: 10px;
+    padding: 9px 10px; font-size: 12.5px; color: var(--text);
+  }
+  .modal .help { font-size: 10.5px; color: var(--muted); line-height: 1.6; margin-top: 4px; }
+  .toast {
+    position: fixed; left: 50%; transform: translateX(-50%); bottom: 22px; background: #3C2B1E;
+    color: #FFF8EC; padding: 10px 15px; border-radius: 12px; z-index: 99; display: none;
+    font-weight: 700; font-size: 12.5px; max-width: 90vw; text-align: center;
+  }
+  @media (max-width: 560px) {
+    .wrap { padding: 10px 10px 40px; }
+    .title { font-size: 15.5px; }
+    .msgs { max-height: 44vh; }
+    .body { max-width: 84%; }
+    .tab { font-size: 10.5px; }
+    .kpi .v { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div class="logo">👑</div>
+    <div style="min-width:0;">
+      <div class="title">허니스윗팜 비서실</div>
+      <div class="sub"><span class="dotg"></span> 사장님 전용 · <span id="modeLabel">클라우드 모드</span></div>
+    </div>
+    <span class="live" onclick="openSettings()">⚙ 설정</span>
+  </div>
+
+  <div class="note">
+    이 화면은 <b>브라우저 저장소(localStorage)</b>에 저장됩니다 — PC·휴대폰 어디서나 열 수 있지만,
+    기기마다 내용이 따로 저장되니 <b>내보내기/가져오기</b>로 옮겨 주세요.
+    주문함(PC 프로그램)과 같은 대화를 보려면 PC의 <code>비서실 → 메모 → 내보내기(JSON)</code> 파일을 가져오면 됩니다.
+  </div>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-sec="room" onclick="setSec('room')"><span class="ic">💬</span>회의실</button>
+    <button class="tab" data-sec="work" onclick="setSec('work')"><span class="ic">📋</span>작업실</button>
+    <button class="tab" data-sec="staff" onclick="setSec('staff')"><span class="ic">📊</span>비서현황</button>
+    <button class="tab" data-sec="memo" onclick="setSec('memo')"><span class="ic">📝</span>메모</button>
+  </nav>
+
+  <section id="secRoom">
+    <div class="card">
+      <div class="rooms" id="rooms"></div>
+      <div class="roominfo"><span id="roomName"></span><span id="roomCount"></span></div>
+      <div class="msgs" id="msgs"></div>
+      <div class="composer">
+        <div class="sender">발신 <span class="who">👑 <span id="ownerChip">김경진</span> (사장님)</span>
+          <button class="btn" style="margin-left:auto;" onclick="clearRoom()">방 비우기</button>
+        </div>
+        <div class="mentions" id="mentions"></div>
+        <div class="inputrow">
+          <textarea id="input" rows="2" placeholder="지시를 적으세요. @로 이름을 부르면 접수 확인이 붙습니다. (Enter 전송 / Shift+Enter 줄바꿈)"></textarea>
+          <button class="send" id="sendBtn" onclick="send()">보내기</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="secWork" hidden>
+    <div class="card">
+      <h4>📦 주문함 현황 <span class="hint" id="summaryWhen"></span></h4>
+      <div class="kpis">
+        <div class="kpi paid"><div class="v" id="kpiPaid">-</div><div class="l">신규결제(대기)</div></div>
+        <div class="kpi prep"><div class="v" id="kpiPrep">-</div><div class="l">배송준비</div></div>
+        <div class="kpi unmapped"><div class="v" id="kpiUnmapped">-</div><div class="l">미매칭</div></div>
+      </div>
+      <div class="sub2" id="summaryMore"></div>
+      <div class="row" style="margin-top:9px;">
+        <button class="btn solid" onclick="openSettings()">🔄 허팜에서 가져오기 / 직접 입력</button>
+      </div>
+      <div class="help" style="font-size:10.5px;color:var(--muted);line-height:1.6;margin-top:6px;">
+        브라우저는 허팜 서버의 직접 호출을 막는 경우가 많습니다(보안 정책). 그때는 PC 주문함에서 내보낸
+        <b>요약 파일</b>을 가져오거나, 설정에서 건수를 직접 적어 두세요.
+      </div>
+    </div>
+    <div class="card">
+      <h4>🗓 정기 스케줄 <span class="hint">평일 기준 · 주말은 정기 발주 없음</span></h4>
+      <div id="workSched"></div>
+    </div>
+    <div class="card">
+      <h4>✅ 할 일 <span class="hint" id="todoCount"></span></h4>
+      <div id="todos"></div>
+      <div class="add">
+        <input id="todoInput" placeholder="할 일을 적고 Enter">
+        <button onclick="addTodo()">추가</button>
+      </div>
+      <div style="text-align:right;margin-top:6px;"><button class="link" onclick="clearDone()">완료한 항목 지우기</button></div>
+    </div>
+  </section>
+
+  <section id="secStaff" hidden>
+    <div class="card"><h4>👑 비서현황</h4><div id="people"></div></div>
+    <div class="card"><h4>🗓 정기 스케줄 <span class="hint">토·일은 쉽니다</span></h4><div id="staffSched"></div></div>
+    <div class="card">
+      <h4>📌 안내</h4>
+      <div class="sub2">
+        · 이 화면은 서버 없이 브라우저에만 저장됩니다 (외부로 보내지 않음).<br>
+        · 이름을 불러도 <b>접수 확인만</b> 남습니다. 실제 발주·발송은 허팜이 주문함에서 진행합니다.<br>
+        · PC 주문함 비서실과 내용을 맞추려면 <b>내보내기/가져오기</b>를 쓰세요.
+      </div>
+    </div>
+  </section>
+
+  <section id="secMemo" hidden>
+    <div class="card">
+      <h4>📝 새 메모</h4>
+      <textarea id="memoInput" placeholder="PC·휴대폰 어디서 적어도 이 브라우저에 저장됩니다."></textarea>
+      <div class="row" style="justify-content:flex-end;margin-top:7px;">
+        <button class="btn" onclick="exportJson()">⬇ 내보내기(JSON)</button>
+        <button class="btn" onclick="document.getElementById('importFile').click()">⬆ 가져오기</button>
+        <button class="send" style="padding:8px 14px;" onclick="addMemo()">저장</button>
+      </div>
+      <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importJson(this)">
+    </div>
+    <div id="memos"></div>
+  </section>
+</div>
+
+<div class="modal-bg" id="settingsModal">
+  <div class="modal">
+    <h3>⚙ 설정</h3>
+
+    <label>사장님 표시 이름</label>
+    <input type="text" id="setOwner" placeholder="예: 김경진">
+
+    <label>주문 현황 직접 입력 (PC 주문함을 못 열 때)</label>
+    <div class="row">
+      <input type="number" id="setPaid" placeholder="신규결제" style="width:31%;">
+      <input type="number" id="setPrep" placeholder="배송준비" style="width:31%;">
+      <input type="number" id="setUnmapped" placeholder="미매칭" style="width:31%;">
+    </div>
+    <div class="help">적어 두면 작업실 카드에 그 숫자가 표시됩니다(마지막 입력 시각 함께 저장).</div>
+
+    <label>허팜 API 주소 (선택)</label>
+    <input type="text" id="setApiBase" placeholder="예: https://주문함-서버-주소" autocomplete="off">
+    <label>허팜 API 키 (선택 · 이 브라우저에만 저장)</label>
+    <input type="password" id="setApiKey" placeholder="API 키" autocomplete="off">
+    <div class="help">
+      허팜 서버가 브라우저 호출(CORS)을 허용할 때만 자동으로 읽힙니다. 막히면 직접 입력이나 파일 가져오기를 쓰세요.
+      키는 이 브라우저 밖으로 나가지 않습니다.
+    </div>
+    <div class="row" style="margin-top:8px;">
+      <button class="btn solid" onclick="syncOrders()">🔄 지금 허팜에서 가져오기</button>
+      <button class="btn" onclick="importSummaryFile()">📄 PC 내보내기 파일 가져오기</button>
+      <input type="file" id="summaryFile" accept=".json,application/json" style="display:none" onchange="importSummary(this)">
+    </div>
+
+    <div class="row" style="justify-content:space-between;margin-top:16px;">
+      <button class="link del" onclick="resetAll()">전체 초기화</button>
+      <span>
+        <button class="btn" onclick="closeSettings()">닫기</button>
+        <button class="btn solid" onclick="saveSettings()">저장</button>
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================ 데이터 ============================ */
+const KEY = "heofarm_office_v1";
+const ROOMS = [
+  { name: "대회의실", emoji: "🏛", members: 3, memo: "사장님·허팜이·경진2 모두" },
+  { name: "지휘실", emoji: "🎯", members: 2, memo: "사장님·허팜이 지시 하달" },
+  { name: "라운지", emoji: "☕", members: 3, memo: "아이디어·잡담" }
+];
+const PEOPLE = [
+  { key: "owner", name: "김경진", call: "사장님", emoji: "👑", role: "사장님", desc: "최종 결정·승인", tone: "owner" },
+  { key: "heofarm", name: "허팜이", call: "허팜이", emoji: "ㅎ", role: "대장 / 본폰", desc: "발주·송장·API·메일·기획/검증", tone: "" },
+  { key: "gyeongjin2", name: "경진2", call: "경진2", emoji: "📱", role: "부대장 / 업무폰 @gyeongjin24", desc: "스레드·쿠팡 파트너스·소싱 실행", tone: "helper" }
+];
+const MENTIONS = ["@전체", "@허팜이(대장)", "@부대장(경진2)"];
+const AUTO_REPLY = {
+  "허팜이": "네, 사장님! 접수했습니다. 발주·송장·메일 쪽이면 바로 착수해서 결과로 보고드리겠습니다. 😊",
+  "경진2": "네, 사장님! 접수했습니다. 스레드·파트너스·소싱 쪽이면 부대장이 바로 움직이겠습니다. 📱"
+};
+const SCHEDULES = [
+  { time: "07:30", name: "고흥 집계", who: "허팜이", days: [0,1,2,3,4], desc: "고흥유럽샐러드 오늘 주문 수량 집계" },
+  { time: "08:30", name: "테무·광명 발주", who: "허팜이", days: [0,1,2,3,4], desc: "테무 미발송 CSV → 광명 발주서 발송" },
+  { time: "08:50", name: "아침 발주 카드", who: "허팜이", days: [0,1,2,3,4], desc: "paid·발주대기 카드 → 진행/보류 선택" },
+  { time: "12:00", name: "테무 송장 등록", who: "허팜이", days: [0,1,2,3,4], desc: "업체 송장 확인·허팜 등록" },
+  { time: "10:00", name: "일로움 광고 점검", who: "허팜이", days: [0,3], desc: "쿠팡 광고 효율 13% 기준 점검" }
+];
+const WD = ["월", "화", "수", "목", "금", "토", "일"];
+
+function freshState() {
+  return {
+    version: 1,
+    activeRoom: "지휘실",
+    lastSection: "room",
+    rooms: { "대회의실": [], "지휘실": [], "라운지": [] },
+    todos: [],
+    memos: [],
+    summary: { paid: null, preparing: null, unmapped: null, purchase_pending: null, shipping: null, source: "", at: "" },
+    settings: { owner: "김경진", apiBase: "", apiKey: "" },
+    updatedAt: ""
+  };
+}
+
+let S = loadState();
+
+function loadState() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (!raw) return freshState();
+    const base = freshState();
+    const out = Object.assign(base, raw);
+    out.rooms = Object.assign(base.rooms, raw.rooms || {});
+    out.summary = Object.assign(base.summary, raw.summary || {});
+    out.settings = Object.assign(base.settings, raw.settings || {});
+    out.todos = Array.isArray(raw.todos) ? raw.todos : [];
+    out.memos = Array.isArray(raw.memos) ? raw.memos : [];
+    return out;
+  } catch (e) { return freshState(); }
+}
+
+function save() {
+  S.updatedAt = nowStr();
+  try { localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch (e) { toast("저장 공간이 가득 찼습니다. 내보낸 뒤 정리해 주세요."); }
+}
+
+/* ============================ 도우미 ============================ */
+function esc(s) {
+  return String(s === null || s === undefined ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+function nowStr() {
+  const d = new Date();
+  const p = n => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+function uid(p) { return p + Math.random().toString(36).slice(2, 10); }
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.style.display = "block";
+  clearTimeout(window.__toastT);
+  window.__toastT = setTimeout(() => { el.style.display = "none"; }, 3000);
+}
+function personByCall(call) { return PEOPLE.find(p => p.call === call) || { emoji: "💬", tone: "", role: "" }; }
+function parseMentions(text) {
+  const out = [];
+  const t = String(text || "");
+  if (t.includes("@전체") || t.toLowerCase().includes("@all")) out.push("허팜이", "경진2");
+  if (t.includes("@허팜이")) out.push("허팜이");
+  if (t.includes("@경진2") || t.includes("@부대장") || t.includes("@gyeongjin24")) out.push("경진2");
+  return [...new Set(out)];
+}
+
+/* ============================ 스케줄 ============================ */
+function daysLabel(days) {
+  const d = [...days].sort((a, b) => a - b);
+  if (d.join() === "0,1,2,3,4") return "평일";
+  if (d.length === 7) return "매일";
+  return d.map(i => WD[i]).join("·");
+}
+function nextLabel(item, now) {
+  const [h, m] = item.time.split(":").map(Number);
+  const clock = String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+  for (let step = 0; step < 10; step++) {
+    const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + step);
+    const wd = day.getDay() === 0 ? 6 : day.getDay() - 1;
+    if (!item.days.includes(wd)) continue;
+    const at = new Date(day.getFullYear(), day.getMonth(), day.getDate(), h, m, 0, 0);
+    if (at.getTime() <= now.getTime()) continue;
+    if (step === 0) return "오늘 " + clock;
+    if (step === 1) return "내일 " + clock;
+    return WD[wd] + "요일 " + clock;
+  }
+  return "예정 없음";
+}
+function scheduleRows() {
+  const now = new Date();
+  const wd = now.getDay() === 0 ? 6 : now.getDay() - 1;
+  return SCHEDULES.map(s => {
+    const [h, m] = s.time.split(":").map(Number);
+    const at = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0, 0);
+    let state, label;
+    if (!s.days.includes(wd)) { state = "off"; label = "오늘 쉼"; }
+    else if (now.getTime() >= at.getTime()) { state = "done"; label = "오늘 " + s.time + " 지남"; }
+    else { state = "waiting"; label = "오늘 " + s.time + " 예정"; }
+    return { ...s, daysLabel: daysLabel(s.days), todayState: state, todayLabel: label, nextLabel: nextLabel(s, now) };
+  });
+}
+function schedHtml() {
+  return scheduleRows().map(x => {
+    const cls = x.todayState === "done" ? "done" : x.todayState === "waiting" ? "wait" : "off";
+    const badge = x.todayState === "done" ? "지남" : x.todayState === "waiting" ? "예정" : "쉼";
+    return `<div class="sched"><span class="time">${esc(x.time)}</span>
+      <div style="min-width:0"><div class="nm">${esc(x.name)} <span class="ds">${esc(x.who)} · ${esc(x.daysLabel)}</span></div>
+      <div class="ds">${esc(x.todayLabel)} · 다음 ${esc(x.nextLabel)}</div></div>
+      <span class="badge ${cls}">${badge}</span></div>`;
+  }).join("");
+}
+
+/* ============================ 화면 ============================ */
+let SEC = S.lastSection || "room";
+let editingTodo = "", editingMemo = "";
+
+function setSec(sec) {
+  SEC = sec;
+  S.lastSection = sec;
+  save();
+  renderAll();
+}
+
+function renderAll() {
+  document.querySelectorAll("#tabs .tab").forEach(b => b.classList.toggle("active", b.dataset.sec === SEC));
+  [["room", "secRoom"], ["work", "secWork"], ["staff", "secStaff"], ["memo", "secMemo"]].forEach(([k, id]) => {
+    const el = document.getElementById(id);
+    if (el) el.hidden = (k !== SEC);
+  });
+  document.getElementById("ownerChip").textContent = S.settings.owner || "사장님";
+  if (SEC === "room") renderRoom();
+  if (SEC === "work") renderWork();
+  if (SEC === "staff") renderStaff();
+  if (SEC === "memo") renderMemos();
+}
+
+function renderRoom() {
+  document.getElementById("rooms").innerHTML = ROOMS.map(r =>
+    `<button class="room ${r.name === S.activeRoom ? "active" : ""}" onclick="setRoom('${esc(r.name)}')">${r.emoji} ${esc(r.name)}</button>`
+  ).join("");
+  const room = ROOMS.find(r => r.name === S.activeRoom) || ROOMS[0];
+  document.getElementById("roomName").textContent = `${room.emoji} ${room.name}`;
+  document.getElementById("roomCount").textContent = `· ON ${room.members}명 · ${room.memo}`;
+  document.getElementById("mentions").innerHTML = MENTIONS.map(m =>
+    `<button class="mention" onclick="mention('${esc(m)}')">${esc(m)}</button>`).join("");
+
+  const msgs = (S.rooms[S.activeRoom] || []);
+  const box = document.getElementById("msgs");
+  const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+  if (!msgs.length) {
+    box.innerHTML = `<div class="empty">아직 지시가 없습니다.<br>아래에 적고 <b>@허팜이(대장)</b> 을 누른 뒤 보내면 접수 확인이 붙습니다.</div>`;
+  } else {
+    box.innerHTML = msgs.map(m => {
+      const p = personByCall(m.author);
+      const me = m.author === "사장님";
+      const time = (m.at || "").slice(11, 16);
+      const auto = m.auto ? `<span class="auto">자동 접수확인</span>` : "";
+      const role = (!me && p.role) ? " · " + esc(p.role) : "";
+      return `<div class="msg ${me ? "me" : ""}">
+        <div class="av ${p.tone || ""}">${p.emoji || "💬"}</div>
+        <div class="body"><div class="meta"><b>${esc(m.author)}</b>${role} · ${time}${auto}</div>
+        <div class="bubble">${esc(m.text)}</div></div></div>`;
+    }).join("");
+  }
+  if (nearBottom) box.scrollTop = box.scrollHeight;
+}
+
+function setRoom(name) { S.activeRoom = name; save(); renderRoom(); }
+
+function mention(text) {
+  const ta = document.getElementById("input");
+  const start = ta.selectionStart === null ? ta.value.length : ta.selectionStart;
+  const end = ta.selectionEnd === null ? ta.value.length : ta.selectionEnd;
+  const before = ta.value.slice(0, start);
+  const pad = (before && !/\s$/.test(before)) ? " " : "";
+  const add = pad + text + " ";
+  ta.value = before + add + ta.value.slice(end);
+  ta.focus();
+  ta.selectionStart = ta.selectionEnd = start + add.length;
+}
+
+function send() {
+  const ta = document.getElementById("input");
+  const text = (ta.value || "").trim();
+  if (!text) { ta.focus(); return; }
+  if (text.length > 2000) { toast("메시지는 2000자까지 쓸 수 있습니다."); return; }
+  const at = nowStr();
+  const room = S.activeRoom;
+  const msg = { id: uid("msg"), author: "사장님", text, at, auto: false, mentions: parseMentions(text) };
+  S.rooms[room] = (S.rooms[room] || []).concat([msg]).slice(-400);
+  const replies = msg.mentions.map(t => ({
+    id: uid("msg"), author: t, text: AUTO_REPLY[t] || "접수했습니다.", at, auto: true, replyTo: msg.id, mentions: []
+  }));
+  S.rooms[room] = S.rooms[room].concat(replies).slice(-400);
+  save();
+  ta.value = "";
+  renderRoom();
+  if (replies.length) toast("접수 확인: " + replies.map(r => r.author).join(", "));
+  ta.focus();
+}
+
+function clearRoom() {
+  if (!confirm(`'${S.activeRoom}' 대화를 모두 지울까요? 되돌릴 수 없습니다.`)) return;
+  S.rooms[S.activeRoom] = [];
+  save();
+  renderRoom();
+  toast("방을 비웠습니다.");
+}
+
+function renderWork() {
+  const sm = S.summary || {};
+  document.getElementById("kpiPaid").textContent = (sm.paid === null || sm.paid === undefined) ? "-" : sm.paid;
+  document.getElementById("kpiPrep").textContent = (sm.preparing === null || sm.preparing === undefined) ? "-" : sm.preparing;
+  document.getElementById("kpiUnmapped").textContent = (sm.unmapped === null || sm.unmapped === undefined) ? "-" : sm.unmapped;
+  document.getElementById("summaryWhen").textContent = sm.at ? (sm.source || "입력") + " " + String(sm.at).slice(5, 16) : "아직 없음";
+  const bits = [];
+  if (sm.purchase_pending !== null && sm.purchase_pending !== undefined) bits.push(`발주대기 ${sm.purchase_pending}건`);
+  if (sm.shipping !== null && sm.shipping !== undefined) bits.push(`발송중 ${sm.shipping}건`);
+  if (!bits.length) bits.push("설정에서 주문 현황을 가져오거나 직접 입력해 두세요.");
+  document.getElementById("summaryMore").textContent = bits.join(" · ");
+  document.getElementById("workSched").innerHTML = schedHtml();
+  renderTodos();
+}
+
+function renderTodos() {
+  const todos = S.todos || [];
+  const open = todos.filter(t => !t.done).length;
+  document.getElementById("todoCount").textContent = `${open}개 남음 / 전체 ${todos.length}`;
+  const box = document.getElementById("todos");
+  if (!todos.length) { box.innerHTML = `<div class="empty">할 일이 없습니다. 아래에 적어 두세요.</div>`; return; }
+  box.innerHTML = todos.map(t => {
+    if (editingTodo === t.id) {
+      return `<div class="todo"><input class="editbox" id="todoEdit" value="${esc(t.text)}"
+        onkeydown="if(event.key==='Enter'){saveTodoText('${esc(t.id)}')} if(event.key==='Escape'){cancelEdit()}">
+        <button class="btn" onclick="saveTodoText('${esc(t.id)}')">저장</button></div>`;
+    }
+    return `<div class="todo ${t.done ? "done" : ""}">
+      <input type="checkbox" ${t.done ? "checked" : ""} onchange="toggleTodo('${esc(t.id)}', this.checked)">
+      <span class="tx" onclick="editTodo('${esc(t.id)}')">${esc(t.text)}</span>
+      <button class="link del" onclick="deleteTodo('${esc(t.id)}')">✕</button></div>`;
+  }).join("");
+  const el = document.getElementById("todoEdit");
+  if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+}
+
+function addTodo() {
+  const input = document.getElementById("todoInput");
+  const text = (input.value || "").trim();
+  if (!text) { input.focus(); return; }
+  S.todos.push({ id: uid("td"), text: text.slice(0, 300), done: false, at: nowStr() });
+  input.value = "";
+  save();
+  renderTodos();
+}
+function editTodo(id) { editingTodo = id; renderTodos(); }
+function toggleTodo(id, checked) {
+  const t = S.todos.find(x => x.id === id);
+  if (t) { t.done = !!checked; t.doneAt = checked ? nowStr() : ""; save(); renderTodos(); }
+}
+function saveTodoText(id) {
+  const el = document.getElementById("todoEdit");
+  const text = el ? el.value.trim() : "";
+  if (!text) { toast("내용을 적어 주세요."); return; }
+  const t = S.todos.find(x => x.id === id);
+  if (t) { t.text = text.slice(0, 300); save(); }
+  editingTodo = "";
+  renderTodos();
+}
+function deleteTodo(id) {
+  if (!confirm("이 할 일을 지울까요?")) return;
+  S.todos = S.todos.filter(t => t.id !== id);
+  save();
+  renderTodos();
+}
+function clearDone() {
+  if (!confirm("완료한 할 일을 모두 지울까요?")) return;
+  const before = S.todos.length;
+  S.todos = S.todos.filter(t => !t.done);
+  save();
+  renderTodos();
+  toast(`완료 ${before - S.todos.length}건 지움`);
+}
+function cancelEdit() { editingTodo = ""; editingMemo = ""; renderAll(); }
+
+function renderStaff() {
+  document.getElementById("people").innerHTML = PEOPLE.map(p => {
+    const label = p.tone === "owner" ? `${esc(p.name)} <span>(${esc(p.call)})</span>` : esc(p.name);
+    return `<div class="person"><div class="av ${p.tone}">${p.emoji}</div>
+      <div style="min-width:0"><div class="nm">${label}</div><div class="rl">${esc(p.role)}</div>
+      <div class="ds">${esc(p.desc)}</div></div></div>`;
+  }).join("");
+  document.getElementById("staffSched").innerHTML = schedHtml();
+}
+
+function renderMemos() {
+  const memos = S.memos || [];
+  const box = document.getElementById("memos");
+  if (!memos.length) {
+    box.innerHTML = `<div class="card"><div class="empty">메모가 없습니다. 위에서 첫 메모를 적어 보세요.</div></div>`;
+    return;
+  }
+  box.innerHTML = memos.map(m => {
+    if (editingMemo === m.id) {
+      return `<div class="memo"><textarea id="memoEdit" rows="5">${esc(m.text)}</textarea>
+        <div class="ft"><button class="link" onclick="saveMemo('${esc(m.id)}')">저장</button>
+        <button class="link" onclick="cancelEdit()">취소</button></div></div>`;
+    }
+    const when = String(m.updatedAt || m.at || "").slice(0, 16);
+    return `<div class="memo"><div class="tx">${esc(m.text)}</div>
+      <div class="ft"><span>${esc(when)}${m.updatedAt ? " 수정" : ""}</span><span style="margin-left:auto"></span>
+      <button class="link" onclick="editMemo('${esc(m.id)}')">편집</button>
+      <button class="link del" onclick="deleteMemo('${esc(m.id)}')">삭제</button></div></div>`;
+  }).join("");
+  const el = document.getElementById("memoEdit");
+  if (el) el.focus();
+}
+function addMemo() {
+  const el = document.getElementById("memoInput");
+  const text = (el.value || "").trim();
+  if (!text) { el.focus(); return; }
+  S.memos.unshift({ id: uid("mm"), text: text.slice(0, 4000), at: nowStr(), updatedAt: "" });
+  el.value = "";
+  save();
+  renderMemos();
+  toast("메모를 저장했습니다.");
+}
+function editMemo(id) { editingMemo = id; renderMemos(); }
+function saveMemo(id) {
+  const el = document.getElementById("memoEdit");
+  const text = el ? el.value.trim() : "";
+  if (!text) { toast("내용을 적어 주세요."); return; }
+  const m = S.memos.find(x => x.id === id);
+  if (m) { m.text = text.slice(0, 4000); m.updatedAt = nowStr(); save(); }
+  editingMemo = "";
+  renderMemos();
+}
+function deleteMemo(id) {
+  if (!confirm("이 메모를 지울까요?")) return;
+  S.memos = S.memos.filter(m => m.id !== id);
+  save();
+  renderMemos();
+}
+
+/* ============================ 설정·주문 현황 ============================ */
+function openSettings() {
+  document.getElementById("setOwner").value = S.settings.owner || "";
+  document.getElementById("setApiBase").value = S.settings.apiBase || "";
+  document.getElementById("setApiKey").value = S.settings.apiKey || "";
+  document.getElementById("setPaid").value = (S.summary.paid === null || S.summary.paid === undefined) ? "" : S.summary.paid;
+  document.getElementById("setPrep").value = (S.summary.preparing === null || S.summary.preparing === undefined) ? "" : S.summary.preparing;
+  document.getElementById("setUnmapped").value = (S.summary.unmapped === null || S.summary.unmapped === undefined) ? "" : S.summary.unmapped;
+  document.getElementById("settingsModal").classList.add("open");
+}
+function closeSettings() { document.getElementById("settingsModal").classList.remove("open"); }
+
+function numOrNull(v) {
+  const n = parseInt(String(v || "").trim(), 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+function saveSettings() {
+  S.settings.owner = document.getElementById("setOwner").value.trim() || "김경진";
+  S.settings.apiBase = document.getElementById("setApiBase").value.trim();
+  S.settings.apiKey = document.getElementById("setApiKey").value.trim();
+  const paid = numOrNull(document.getElementById("setPaid").value);
+  const prep = numOrNull(document.getElementById("setPrep").value);
+  const unmapped = numOrNull(document.getElementById("setUnmapped").value);
+  if (paid !== null || prep !== null || unmapped !== null) {
+    S.summary.paid = paid; S.summary.preparing = prep; S.summary.unmapped = unmapped;
+    S.summary.source = "직접 입력"; S.summary.at = nowStr();
+  }
+  save();
+  closeSettings();
+  renderAll();
+  toast("설정을 저장했습니다.");
+}
+
+function applyOrders(orders, source) {
+  const count = st => orders.filter(o => o.status === st).length;
+  S.summary.paid = count("paid");
+  S.summary.preparing = count("preparing");
+  S.summary.purchase_pending = count("purchase_pending");
+  S.summary.shipping = count("shipping");
+  S.summary.unmapped = orders.filter(o => !o.supplier || o.supplier === "미매칭").length;
+  S.summary.source = source;
+  S.summary.at = nowStr();
+  save();
+  renderWork();
+}
+
+async function syncOrders() {
+  const base = (S.settings.apiBase || "").replace(/\/$/, "");
+  const key = S.settings.apiKey || "";
+  if (!base || !key) { toast("설정에서 허팜 API 주소와 키를 먼저 넣어 주세요."); return; }
+  toast("허팜에서 주문을 불러오는 중...");
+  try {
+    const res = await fetch(base + "/api/orders", { headers: { "X-API-Key": key } });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    const orders = Array.isArray(data) ? data : (data.orders || []);
+    if (!Array.isArray(orders) || !orders.length) throw new Error("주문 목록이 비어 있습니다");
+    applyOrders(orders, "허팜 API");
+    closeSettings();
+    toast(`주문 ${orders.length}건을 불러왔습니다.`);
+  } catch (e) {
+    toast("허팜 직접 호출이 막혔습니다(브라우저 보안/CORS). PC 내보내기 파일을 가져오거나 직접 입력해 주세요.");
+  }
+}
+
+function importSummaryFile() { document.getElementById("summaryFile").click(); }
+
+function importSummary(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      const sm = data.summary || (data.state && data.state.summary) || data;
+      if (!sm || typeof sm !== "object") throw new Error("요약을 찾지 못했습니다");
+      S.summary.paid = numOrNull(sm.paid);
+      S.summary.preparing = numOrNull(sm.preparing);
+      S.summary.unmapped = numOrNull(sm.unmapped);
+      S.summary.purchase_pending = numOrNull(sm.purchase_pending);
+      S.summary.shipping = numOrNull(sm.shipping);
+      S.summary.source = "PC 내보내기";
+      S.summary.at = nowStr();
+      // PC 비서실에서 내보낸 파일이면 대화·할 일·메모도 함께 가져온다
+      let merged = false;
+      if (data.state && data.state.rooms) {
+        if (confirm("PC 비서실의 대화·할 일·메모도 함께 가져올까요? 지금 이 브라우저 내용은 덮어써집니다.")) {
+          S.rooms = Object.assign(freshState().rooms, data.state.rooms);
+          S.todos = data.state.todos || [];
+          S.memos = data.state.memos || [];
+          if (data.state.activeRoom) S.activeRoom = data.state.activeRoom;
+          merged = true;
+        }
+      }
+      save();
+      renderAll();
+      closeSettings();
+      toast(merged ? "PC 비서실 내용까지 가져왔습니다." : "주문 요약을 가져왔습니다.");
+    } catch (e) {
+      toast("파일을 읽지 못했습니다: " + e.message);
+    }
+  };
+  reader.readAsText(file);
+  input.value = "";
+}
+
+function exportJson() {
+  const payload = { kind: "heofarm-office", exportedAt: nowStr(), state: S, schedules: scheduleRows() };
+  const blob = new Blob([JSON.stringify(payload, null, 1)], { type: "application/json" });
+  const a = document.createElement("a");
+  const d = new Date();
+  const p = n => String(n).padStart(2, "0");
+  a.href = URL.createObjectURL(blob);
+  a.download = `비서실_${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}.json`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  toast("내보냈습니다. 다른 기기에서 '가져오기'로 열 수 있습니다.");
+}
+
+function importJson(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      const st = data.state || data;
+      if (!st || !st.rooms) throw new Error("비서실 파일이 아닙니다");
+      if (!confirm("지금 이 브라우저의 내용을 가져온 파일로 바꿀까요?")) return;
+      S = Object.assign(freshState(), st);
+      S.rooms = Object.assign(freshState().rooms, st.rooms);
+      S.settings = Object.assign(freshState().settings, st.settings || {});
+      S.summary = Object.assign(freshState().summary, st.summary || {});
+      save();
+      renderAll();
+      toast("가져왔습니다.");
+    } catch (e) {
+      toast("파일을 읽지 못했습니다: " + e.message);
+    }
+  };
+  reader.readAsText(file);
+  input.value = "";
+}
+
+function resetAll() {
+  if (!confirm("이 브라우저의 비서실 내용을 모두 지울까요? (되돌릴 수 없습니다)")) return;
+  S = freshState();
+  save();
+  renderAll();
+  closeSettings();
+  toast("초기화했습니다.");
+}
+
+/* ============================ 시작 ============================ */
+document.getElementById("input").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); }
+});
+document.getElementById("todoInput").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); addTodo(); }
+});
+document.getElementById("settingsModal").addEventListener("click", e => {
+  if (e.target.id === "settingsModal") closeSettings();
+});
+renderAll();
+</script>
+</body>
+</html>
